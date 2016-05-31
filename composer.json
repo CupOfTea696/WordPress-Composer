@@ -1,0 +1,26 @@
+{
+    "name": "cupoftea/wordpress-composer",
+    "description": "WordPress Composer Plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sven Wittevrongel",
+            "email": "cupoftea696@gmail.com"
+        }
+    ],
+    "type": "composer-plugin",
+    "require": {
+        "composer-plugin-api": "^1.1",
+        "cupoftea/package": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "CupOfTea\\WordPress\\Composer\\": "src/"
+        }
+    },
+    "extra": {
+        "class": "CupOfTea\\WordPress\\Composer\\Plugin"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
