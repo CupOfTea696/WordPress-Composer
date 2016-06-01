@@ -85,11 +85,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     ];
     
     /**
+     * @var Public directory name.
+     */
+    protected $publicDirectory;
+    
+    /**
      * {@inheritDoc}
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        $installer = new Installer($io, $composer);
+        $installer = new Installer($io, $composer, $this);
         
         $composer->getInstallationManager()->addInstaller($installer);
         
@@ -115,11 +120,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function configureComposerJson()
     {
-        if (! $this->isPublicDirSet()) {
+        if (! $this->isPublicDirectorySet()) {
             $json = $this->readJson();
-            $public = $this->getPublicDirectory();
             
-            $this->setExtra($json, $public);
+            $this->setExtra($json);
             $this->configureRepos($json);
             $this->configureSorting($json);
             $this->sortProperties($json);
@@ -133,7 +137,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * 
      * @return bool
      */
-    protected function isPublicDirSet()
+    protected function isPublicDirectorySet()
     {
         $rootPkg = $this->composer->getPackage();
         $extra = $rootPkg->getExtra();
@@ -168,8 +172,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * 
      * @return string
      */
-    protected function getPublicDirectory()
+    public function getPublicDirectory()
     {
+        if (isset($this->publicDirectory)) {
+            return $this->publicDirectory;
+        }
+        
         $common_public_dirs = [
             'public',
             'public_html',
@@ -192,17 +200,17 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         
         if (! $public) {
             if ($this->io->isInteractive()) {
-                return trim($this->io->ask('What is the public directory (web root) for this project [<comment>' . $common_public_dirs[0] . '</comment>]? ', $common_public_dirs[0]), '/');
+                return $this->publicDirectory = trim($this->io->ask('What is the public directory (web root) for this project [<comment>' . $common_public_dirs[0] . '</comment>]? ', $common_public_dirs[0]), '/');
             }
             
-            return $common_public_dirs[0];
+            return $this->publicDirectory = $common_public_dirs[0];
         }
         
         if ($this->io->isInteractive()) {
-            return trim($this->io->ask('What is the public directory (web root) for this project [<comment>' . $public . '</comment>]? ', $public), '/');
+            return $this->publicDirectory = trim($this->io->ask('What is the public directory (web root) for this project [<comment>' . $public . '</comment>]? ', $public), '/');
         }
         
-        return $public;
+        return $this->publicDirectory = $public;
     }
     
     /**
@@ -212,8 +220,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * @param string $public
      * @return void
      */
-    protected function setExtra(&$json, $public)
+    protected function setExtra(&$json)
     {
+        $public = $thi->getPublicDirectory();
         $extra = array_merge(isset($json['extra']) ? $json['extra'] : [], [
             'public-dir' => $public,
             'wordpress-install-dir' => $public . '/wp',

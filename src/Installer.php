@@ -1,7 +1,12 @@
 <?php namespace CupOfTea\WordPress\Composer;
 
+use Composer\Composer;
+use Composer\IO\IOInterface;
 use InvalidArgumentException;
+use Composer\Util\Filesystem;
+use Composer\Plugin\PluginInterface;
 use Composer\Package\PackageInterface;
+use Composer\Installer\BinaryInstaller;
 use Composer\Installer\LibraryInstaller;
 use Composer\Downloader\FilesystemException;
 use Composer\Repository\InstalledRepositoryInterface;
@@ -14,6 +19,17 @@ class Installer extends LibraryInstaller
      * @const string
      */
     const PACKAGE_TYPE = 'cupoftea-wordpress';
+    
+    protected $plugin;
+    
+    protected $templates = [];
+    
+    public function __construct(IOInterface $io, Composer $composer, PluginInterface $plugin, $type = 'library', Filesystem $filesystem = null, BinaryInstaller $binaryInstaller = null)
+    {
+        parent::__construct($io, $composer, $type, $filesystem, $binaryInstaller);
+        
+        $this->plugin = $plugin;
+    }
     
     /**
      * {@inheritDoc}
@@ -168,6 +184,43 @@ class Installer extends LibraryInstaller
     }
     
     /**
+     * Set up the .env file.
+     * 
+     * @param  \Composer\Package\PackageInterface  $package
+     * @return void
+     */
+    protected function installDotEnv(PackageInterface $package)
+    {
+        $templatePath = $this->getTempPath($package) . '/.env.template';
+        $dotEnvPath = $this->getInstallPath($package) . '/.env';
+        $dotEnvExamplePath = $this->getInstallPath($package) . '/.env.example';
+        
+        if (! file_exists($templatePath)) {
+            return;
+        }
+        
+        $saltKeys = ['AUTH_KEY', 'SECURE_AUTH_KEY', 'LOGGED_IN_KEY', 'NONCE_KEY', 'AUTH_SALT', 'SECURE_AUTH_SALT', 'LOGGED_IN_SALT', 'NONCE_SALT'];
+        
+        $env = [];
+        $env['APP_PUBLIC'] = $this->plugin->getPublicDirectory();
+        
+        foreach ($saltKeys as $salt) {
+            $env[$salt] = $this->generateSalt();
+        }
+        
+        $this->compileTemplate($templatePath, $dotEnvPath, $env);
+        
+        $envExample = [];
+        $envExample['APP_PUBLIC'] = 'public';
+        
+        foreach ($saltKeys as $salt) {
+            $envExample[$salt] = 'YOUR_' . $salt . '_GOES_HERE';
+        }
+        
+        $this->compileTemplate($templatePath, $dotEnvExamplePath, $envExample);
+    }
+    
+    /**
      * {@inheritDoc}
      */
     protected function installCode(PackageInterface $package)
@@ -177,7 +230,6 @@ class Installer extends LibraryInstaller
         $downloadPath = $this->getTempPath($package);
         
         $this->downloadManager->download($package, $downloadPath);
-        $this->installGitignore($package);
         
         foreach ($files as $file) {
             if (! file_exists($downloadPath . '/' . $file)) {
@@ -192,6 +244,9 @@ class Installer extends LibraryInstaller
             
             $this->filesystem->rename($downloadPath . '/' . $file, $installPath . '/' . $file);
         }
+        
+        $this->installGitignore($package);
+        $this->installDotEnv($package);
         
         $this->filesystem->remove($downloadPath);
     }
@@ -241,5 +296,36 @@ class Installer extends LibraryInstaller
         foreach ($files as $file) {
             $this->filesystem->remove($installPath . '/' . $file);
         }
+    }
+    
+    private function compileTemplate($templatePath, $destinationPath, $data)
+    {
+        if (! isset($this->templates[$templatePath])) {
+            $this->templates[$templatePath] = file_get_contents($templatePath);
+        }
+        
+        $compiled = preg_replace_callback('', function($matches) use ($data) {
+            if (isset($data[$matches[1]])) {
+                return $data[$matches[1]];
+            }
+            
+            return $matches[0];
+        }, $this->templates[$templatePath]);
+        
+        file_put_contents($destinationPath, $compiled);
+    }
+    
+    private function generateSalt()
+    {
+        $str = '';
+        $length = 64;
+        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(){}[]/|`,.?+-_=:;<> ';
+        $count = strlen($chars);
+        
+        while ($length--) {
+            $str .= $chars[mt_rand(0, $count - 1)];
+        }
+        
+        return $str;
     }
 }
