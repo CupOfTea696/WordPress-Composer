@@ -1,6 +1,5 @@
 <?php namespace CupOfTea\WordPress\Composer;
 
-use CupOfTea\Package\Package;
 use InvalidArgumentException;
 use Composer\Package\PackageInterface;
 use Composer\Installer\LibraryInstaller;
@@ -9,22 +8,11 @@ use Composer\Repository\InstalledRepositoryInterface;
 
 class Installer extends LibraryInstaller
 {
-    use Package;
-    
     /**
-     * Package Name.
+     * Package Type handled by this Installer.
      *
      * @const string
      */
-    const PACKAGE = 'CupOfTea/WordPress-Installer';
-    
-    /**
-     * Package Version.
-     *
-     * @const string
-     */
-    const VERSION = '0.0.0';
-    
     const PACKAGE_TYPE = 'cupoftea-wordpress';
     
     /**
@@ -103,16 +91,34 @@ class Installer extends LibraryInstaller
         return '.';
     }
     
+    /**
+     * Get the temp path.
+     * 
+     * @param  \Composer\Package\PackageInterface  $package
+     * @return string
+     */
     protected function getTempPath(PackageInterface $package)
     {
         return str_replace('/', '-', $package->getPrettyName()) . '_' . $package->getPrettyVersion();
     }
     
+    /**
+     * Get the list of files to install.
+     * 
+     * @param  \Composer\Package\PackageInterface  $package
+     * @return array
+     */
     protected function getInstallFiles(PackageInterface $package)
     {
         return $package->getExtra()['files'];
     }
     
+    /**
+     * Set up the .gitignore file.
+     * 
+     * @param  \Composer\Package\PackageInterface  $package
+     * @return void
+     */
     protected function installGitignore(PackageInterface $package)
     {
         $installPath = $this->getInstallPath($package) . '/.gitignore';
@@ -161,6 +167,9 @@ class Installer extends LibraryInstaller
         file_put_contents($installPath, implode(PHP_EOL, $gitignore));
     }
     
+    /**
+     * {@inheritDoc}
+     */
     protected function installCode(PackageInterface $package)
     {
         $files = $this->getInstallFiles($package);
@@ -187,6 +196,9 @@ class Installer extends LibraryInstaller
         $this->filesystem->remove($downloadPath);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     protected function updateCode(PackageInterface $current, PackageInterface $target)
     {
         $currentInstallPath = $this->getInstallPath($current);
@@ -218,6 +230,9 @@ class Installer extends LibraryInstaller
         $this->installCode($target);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     protected function removeCode(PackageInterface $package)
     {
         $files = $this->getInstallFiles($package);
