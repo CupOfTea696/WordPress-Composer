@@ -89,7 +89,7 @@ class ComposerConfigurator
         $reposConfigured = $this->areRepoConfigured();
         $sortingConfigured = $this->isSortingConfigured();
         
-        if ($publicDirectorySet && $wordPressInstallDirectorySet && $repoConfigured && $sortingConfigured) {
+        if ($publicDirectorySet && $wordPressInstallDirectorySet && $reposConfigured && $sortingConfigured) {
             return;
         }
         
@@ -156,7 +156,7 @@ class ComposerConfigurator
         $rootPkg = $this->composer->getPackage();
         $repositories = $rootPkg->getRepositories();
         
-        return $this->pregGrepRecursive('/^http(s|\?)?:\/\/wpackagist\.org\/?$/', $repositories)
+        return $this->pregGrepRecursive('/^http(s|\?)?:\/\/wpackagist\.org\/?$/', $repositories);
     }
     
     /**
