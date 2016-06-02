@@ -251,7 +251,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     protected function setExtra(&$json)
     {
-        $public = $thi->getPublicDirectory();
+        $public = $this->getPublicDirectory();
         $extra = array_merge(isset($json['extra']) ? $json['extra'] : [], [
             'public-dir' => $public,
             'wordpress-install-dir' => $public . '/wp',
