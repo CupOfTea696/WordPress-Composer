@@ -304,7 +304,7 @@ class Installer extends LibraryInstaller
             $this->templates[$templatePath] = file_get_contents($templatePath);
         }
         
-        $compiled = preg_replace_callback('', function($matches) use ($data) {
+        $compiled = preg_replace_callback('/{{\s*([A-z0-9_-]+)\s*}}/', function($matches) use ($data) {
             if (isset($data[$matches[1]])) {
                 return $data[$matches[1]];
             }
