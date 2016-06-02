@@ -2,12 +2,17 @@
 
 use Composer\Script\ScriptEvents;
 use Composer\EventDispatcher\Event;
+use Composer\Plugin\PluginInterface;
 use Composer\Installer\PackageEvents;
 use Composer\EventDispatcher\EventSubscriberInterface;
 
 class EventSubscriber implements EventSubscriberInterface
 {
     protected static $instance;
+    
+    protected static $plugin;
+    
+    protected $instances = [];
     
     protected function __construct()
     {
@@ -34,8 +39,17 @@ class EventSubscriber implements EventSubscriberInterface
         return static::$instance;
     }
     
+    public static function setPlugin(PluginInterface $plugin)
+    {
+        static::$plugin = $plugin;
+    }
+    
     public function configureComposerJson(Event $event)
     {
+        if (! isset($this->instances[ComposerConfigurator::class])) {
+            $this->instances[ComposerConfigurator::class] = new ComposerConfigurator(static::$plugin);
+        }
         
+        $this->instances[ComposerConfigurator::class]->configure($event->getComposer(), $event->getIO());
     }
 }
