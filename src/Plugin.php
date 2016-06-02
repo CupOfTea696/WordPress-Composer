@@ -227,19 +227,31 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
         }
         
+        $publicDirQuestion = 'What is the public directory (web root) for this project?';
+        
         if (! $public) {
             if ($this->io->isInteractive()) {
-                return $this->publicDirectory = trim($this->io->ask('What is the public directory (web root) for this project [<comment>' . $common_public_dirs[0] . '</comment>]? ', $common_public_dirs[0]), '/');
+                return $this->publicDirectory = trim($this->ask($publicDirQuestion, $common_public_dirs[0]), '/');
             }
             
             return $this->publicDirectory = $common_public_dirs[0];
         }
         
         if ($this->io->isInteractive()) {
-            return $this->publicDirectory = trim($this->io->ask('What is the public directory (web root) for this project [<comment>' . $public . '</comment>]? ', $public), '/');
+            return $this->publicDirectory = trim($this->io->ask($publicDirQuestion, $public), '/');
         }
         
         return $this->publicDirectory = $public;
+    }
+    
+    protected function ask($question, $default = null)
+    {
+        $defaultComment = ' [<comment>' . $default . '</comment>]';
+        $defaultComment .= preg_match('/\?\s*$/', $question) ? '? ' : ' ';
+        
+        $question = preg_replace('/\??\s*/', '', $question) . $defaultComment;
+        
+        return $this->io->ask($question, $default);
     }
     
     /**
@@ -262,8 +274,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         
         if (isset($extra['installer-paths'])) {
             foreach ($extra['installer-paths'] as $path => &$names) {
-                if (
-                    $path != $plugins_path && ($key = array_search('type:wordpress-plugin', $names)) !== false ||
+                if ($path != $plugins_path && ($key = array_search('type:wordpress-plugin', $names)) !== false ||
                     $path != $themes_path && ($key = array_search('type:wordpress-theme', $names)) !== false
                 ) {
                     unset($names[$key]);
@@ -323,14 +334,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     protected function sortProperties(&$json)
     {
-        $json = $this->sort_by_array($json, $this->composerOrder);
+        $json = $this->sortByArray($json, $this->composerOrder);
         
         if (isset($json['autoload'])) {
-            $json['autoload'] = $this->sort_by_array($json['autoload'], $this->autoloadOrder);
+            $json['autoload'] = $this->sortByArray($json['autoload'], $this->autoloadOrder);
         }
         
         if (isset($json['autoload-dev'])) {
-            $json['autoload-dev'] = $this->sort_by_array($json['autoload-dev'], $this->autoloadOrder);
+            $json['autoload-dev'] = $this->sortByArray($json['autoload-dev'], $this->autoloadOrder);
         }
         
         foreach (['support', 'require', 'require-dev', 'conflict', 'replace', 'provide', 'suggest'] as $property) {
@@ -347,16 +358,17 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * @param  array  $haystack
      * @return array
      */
-    protected function preg_grep_recursive($pattern, $haystack) {
+    protected function pregGrepRecursive($pattern, $haystack)
+    {
         $matches = [];
         
         foreach ($haystack as $key => $item) {
             if (is_array($item)) {
-				$sub_matches = $this->preg_grep_recursive($pattern, $item);
-				
-				if ($sub_matches) {
-                	$matches[$key] = $sub_matches;
-				}
+                $sub_matches = $this->preg_grep_recursive($pattern, $item);
+                
+                if ($sub_matches) {
+                    $matches[$key] = $sub_matches;
+                }
             } elseif (preg_match($pattern, $item)) {
                 $matches[$key] = $item;
             }
@@ -372,14 +384,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * @param  array  $order
      * @return array
      */
-    protected function sort_by_array($array, $order)
+    protected function sortByArray($array, $order)
     {
         $keys = array_keys($array);
         
         return array_merge(
             array_flip(
                 array_intersect($order, $keys) +
-				array_diff($keys, $order)
+                array_diff($keys, $order)
             ),
             $array
         );

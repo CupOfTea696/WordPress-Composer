@@ -144,7 +144,10 @@ class Installer extends LibraryInstaller
             return $this->filesystem->rename($downloadPath, $installPath);
         }
         
-        $gitignore = preg_split('/\r?\n/', file_get_contents($downloadPath) . PHP_EOL . '# User rules' . PHP_EOL . file_get_contents($installPath));
+        $downloadGitignore = file_get_contents($downloadPath);
+        $installGitignore = file_get_contents($installPath);
+        
+        $gitignore = preg_split('/\r?\n/', $downloadGitignore . PHP_EOL . '# User rules' . PHP_EOL . $installGitignore);
         $group = 'user rules';
         $groups = [];
         
@@ -199,7 +202,16 @@ class Installer extends LibraryInstaller
             return;
         }
         
-        $saltKeys = ['AUTH_KEY', 'SECURE_AUTH_KEY', 'LOGGED_IN_KEY', 'NONCE_KEY', 'AUTH_SALT', 'SECURE_AUTH_SALT', 'LOGGED_IN_SALT', 'NONCE_SALT'];
+        $saltKeys = [
+            'AUTH_KEY',
+            'SECURE_AUTH_KEY',
+            'LOGGED_IN_KEY',
+            'NONCE_KEY',
+            'AUTH_SALT',
+            'SECURE_AUTH_SALT',
+            'LOGGED_IN_SALT',
+            'NONCE_SALT'
+        ];
         
         $env = [];
         $env['APP_PUBLIC'] = $this->plugin->getPublicDirectory();
@@ -271,7 +283,7 @@ class Installer extends LibraryInstaller
                 return;
             }
             
-            $this->filesystem->rename($initialDownloadPath, $targetDownloadPath);
+            $this->filesystem->rename($currentInstallPath, $targetInstallPath);
         }
         
         $currentFiles = $this->getInstallFiles($current);
@@ -304,7 +316,7 @@ class Installer extends LibraryInstaller
             $this->templates[$templatePath] = file_get_contents($templatePath);
         }
         
-        $compiled = preg_replace_callback('/{{\s*([A-z0-9_-]+)\s*}}/', function($matches) use ($data) {
+        $compiled = preg_replace_callback('/{{\s*([A-z0-9_-]+)\s*}}/', function ($matches) use ($data) {
             if (isset($data[$matches[1]])) {
                 return $data[$matches[1]];
             }
