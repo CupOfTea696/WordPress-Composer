@@ -92,7 +92,7 @@ class ComposerConfigurator
         
         $publicDirectorySet = $this->isPublicDirectorySet();
         $wordPressInstallDirectorySet = $this->isWordPressInstallDirectorySet();
-        $reposConfigured = $this->areRepoConfigured();
+        $reposConfigured = $this->areReposConfigured();
         $sortingConfigured = $this->isSortingConfigured();
         
         if ($publicDirectorySet && $wordPressInstallDirectorySet && $reposConfigured && $sortingConfigured) {
@@ -229,7 +229,7 @@ class ComposerConfigurator
      */
     protected function isSortingConfigured()
     {
-        return $this->compsoser->getConfig()->get('sort-packages');
+        return $this->composer->getConfig()->get('sort-packages');
     }
     
     /**
@@ -240,10 +240,7 @@ class ComposerConfigurator
      */
     protected function configureSorting(&$json)
     {
-        $config = isset($json['config']) ? $json['config'] : [];
-        $config['sort-packages'] = true;
-        
-        $json['config'] = $config;
+        $json['config']['sort-packages'] = true;
     }
     
     /**
@@ -306,7 +303,7 @@ class ComposerConfigurator
         
         foreach ($haystack as $key => $item) {
             if (is_array($item)) {
-                $sub_matches = $this->preg_grep_recursive($pattern, $item);
+                $sub_matches = $this->pregGrepRecursive($pattern, $item);
                 
                 if ($sub_matches) {
                     $matches[$key] = $sub_matches;
