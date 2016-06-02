@@ -113,7 +113,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         foreach ($events as $event => $params) {
             if (is_string($params)) {
                 $eventMap[$event] = 'forwardEventTo' . ucfirst($params);
-            } elseif (is_array($params) {
+            } elseif (is_array($params)) {
                 if (count($params) == 2 && is_int($params[1])) {
                     $eventMap[$event] = ['forwardEventTo' . ucfirst($params[0]), $params[1]];
                 } else {
