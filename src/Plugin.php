@@ -107,10 +107,39 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return [
-            'pre-install-cmd' => 'configureComposerJson',
-            'pre-update-cmd' => 'configureComposerJson'
-        ];
+        $eventMap = [];
+        $events = EventSubscriber::getSubscribedEvents();
+        
+        foreach ($events as $event => $params) {
+            if (is_string($params)) {
+                $eventMap[$event] = 'forwardEventTo' . ucfirst($params);
+            } elseif (is_array($params) {
+                if (count($params) == 2 && is_int($params[1])) {
+                    $eventMap[$event] = ['forwardEventTo' . ucfirst($params[0]), $params[1]];
+                } else {
+                    foreach ($params as $listener) {
+                        if (is_string($listener) || (is_array($listener) && count($listener) == 1)) {
+                            $listener = is_array($listener) ? $listener[0] : $listener;
+                            
+                            $eventMap[$event][] = ['forwardEventTo' . ucfirst($listener), 0];
+                        } else {
+                            $eventMap[$event][] = ['forwardEventTo' . ucfirst($listener[0]), $listener[1]];
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $eventMap;
+    }
+    
+    public function __call($method, $args)
+    {
+        if (preg_match('/^forwardEventTo([A-Z][A-z]+)$/', $method, $matches)) {
+            $listener = lcfirst($matches[1]);
+            
+            EventSubscriber::getInstance()->$listener($args[0]);
+        }
     }
     
     /**
