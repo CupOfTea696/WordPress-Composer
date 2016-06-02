@@ -68,6 +68,12 @@ class ComposerConfigurator
         'files',
     ];
     
+    /**
+     * Create a new ComposerConfigurator instance.
+     * 
+     * @param  \Composer\Plugin\PluginInterface  $plugin
+     * @return void
+     */
     public function __construct(PluginInterface $plugin)
     {
         $this->plugin = $plugin;
@@ -128,6 +134,12 @@ class ComposerConfigurator
         return $rootPkg && $extra && $extra['public-dir'];
     }
     
+    /**
+     * Set the public directory in the composer.json.
+     * 
+     * @param  array  $json
+     * @return void
+     */
     protected function setPublicDirectory(&$json)
     {
         $json['extra']['public-dir'] = $this->plugin->getPublicDirectory();
@@ -146,11 +158,22 @@ class ComposerConfigurator
         return $rootPkg && $extra && $extra['wordpress-install-dir'];
     }
     
+    /**
+     * Set the WordPress installation directory in the composer.json.
+     * 
+     * @param  array  $json
+     * @return void
+     */
     protected function setWordPressInstallDirectory(&$json)
     {
         $json['extra']['wordpress-install-dir'] = $this->plugin->getPublicDirectory() . '/wp';
     }
     
+    /**
+     * Check if the additional repositories for using WordPress with composer are set.
+     * 
+     * @return bool
+     */
     protected function areReposConfigured()
     {
         $rootPkg = $this->composer->getPackage();
@@ -199,15 +222,20 @@ class ComposerConfigurator
         $json['extra'] = $extra;
     }
     
+    /**
+     * Check if autmatic sorting of linked packages is enabled.
+     * 
+     * @return bool
+     */
     protected function isSortingConfigured()
     {
         return $this->compsoser->getConfig()->get('sort-packages');
     }
     
     /**
-     * Configure automatic sorting of required packages.
+     * Configure automatic sorting of linked packages.
      * 
-     * @param array &$json
+     * @param  array  $json
      * @return void
      */
     protected function configureSorting(&$json)
@@ -221,7 +249,7 @@ class ComposerConfigurator
     /**
      * Sort the composer.json properties.
      * 
-     * @param array &$json
+     * @param  array  $json
      * @return void
      */
     protected function sortProperties(&$json)
