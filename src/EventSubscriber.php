@@ -46,6 +46,8 @@ class EventSubscriber implements EventSubscriberInterface
     
     public function configureComposerJson(Event $event)
     {
+        var_dump('Configuring Composer');
+        
         if (! isset($this->instances[ComposerConfigurator::class])) {
             $this->instances[ComposerConfigurator::class] = new ComposerConfigurator(static::$plugin);
         }
@@ -55,6 +57,8 @@ class EventSubscriber implements EventSubscriberInterface
     
     public function cleanWordPressInstallation(PackageEvent $event)
     {
+        var_dump('Cleaning WordPress');
+        
         if ($event->getOperation()->getPackage()->getName() != 'johnpbloch/wordpress') {
             return;
         }

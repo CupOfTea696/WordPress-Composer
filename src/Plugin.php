@@ -45,6 +45,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
+        var_dump('plugin activated');
+        
         $installer = new Installer($io, $composer, $this);
         
         $composer->getInstallationManager()->addInstaller($installer);
