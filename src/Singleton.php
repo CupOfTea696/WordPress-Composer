@@ -4,9 +4,9 @@ use Composer\Plugin\PluginInterface;
 
 class Singleton
 {
-    protected static $instance;
+    private static $instance;
     
-    protected static $plugin;
+    private static $plugin;
     
     protected function __construct()
     {
