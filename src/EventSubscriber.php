@@ -39,7 +39,7 @@ class EventSubscriber extends Singleton implements EventSubscriberInterface
             return;
         }
         
-        $extra['wordpress-install-dir'] = static::$plugin->getPublicDirectory() . '/wp';
+        $extra['wordpress-install-dir'] = static::getPlugin()->getPublicDirectory() . '/wp';
         
         $rootPkg->setExtra($extra);
         $composer->setPackage($rootPkg);
