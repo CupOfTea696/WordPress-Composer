@@ -10,16 +10,6 @@ class WordPressInstallationCleaner
     protected $plugin;
     
     /**
-     * @var The composer instance
-     */
-    protected $composer;
-    
-    /**
-     * @var The IO instance
-     */
-    protected $io;
-    
-    /**
      * Create a new WordPressInstallationCleaner instance.
      * 
      * @param  \Composer\Plugin\PluginInterface  $plugin
@@ -35,7 +25,7 @@ class WordPressInstallationCleaner
      * 
      * @return void
      */
-    public function clean(Composer $composer, IOInterface $io)
+    public function clean(Composer $composer)
     {
         $rootPkg = $composer->getPackage();
         $extra = $rootPkg->getExtra();
