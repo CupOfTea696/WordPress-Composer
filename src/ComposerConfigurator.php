@@ -5,7 +5,7 @@ use Composer\Json\JsonFile;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 
-class ComposerConfigurator
+class ComposerConfigurator extends Singleton
 {
     /**
      * @var The composer instance
