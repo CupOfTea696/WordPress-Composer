@@ -3,7 +3,6 @@
 use Composer\Script\ScriptEvents;
 use Composer\EventDispatcher\Event;
 use Composer\Installer\PackageEvent;
-use Composer\Plugin\PluginInterface;
 use Composer\Installer\PackageEvents;
 use Composer\EventDispatcher\EventSubscriberInterface;
 

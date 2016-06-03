@@ -1,5 +1,7 @@
 <?php namespace CupOfTea\WordPress\Composer;
 
+use Composer\Plugin\PluginInterface;
+
 class Singleton
 {
     protected static $instance;
