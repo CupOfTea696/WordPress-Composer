@@ -129,7 +129,7 @@ class ComposerConfigurator extends Singleton
      */
     protected function setPublicDirectory(&$json)
     {
-        $json['extra']['public-dir'] = static::$plugin->getPublicDirectory();
+        $json['extra']['public-dir'] = static::getPlugin()->getPublicDirectory();
     }
     
     /**
@@ -153,7 +153,7 @@ class ComposerConfigurator extends Singleton
      */
     protected function setWordPressInstallDirectory(&$json)
     {
-        $json['extra']['wordpress-install-dir'] = static::$plugin->getPublicDirectory() . '/wp';
+        $json['extra']['wordpress-install-dir'] = static::getPlugin()->getPublicDirectory() . '/wp';
     }
     
     /**
@@ -178,7 +178,7 @@ class ComposerConfigurator extends Singleton
      */
     protected function configureRepos(&$json)
     {
-        $public = static::$plugin->getPublicDirectory();
+        $public = static::getPlugin()->getPublicDirectory();
         $plugins_path = $public . '/wp/wp-content/plugins/{$name}/';
         $themes_path = $public . '/themes/{$name}/';
         

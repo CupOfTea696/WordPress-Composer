@@ -22,6 +22,11 @@ class Singleton
         return static::$instance;
     }
     
+    public static function getPlugin()
+    {
+        return static::$plugin;
+    }
+    
     public static function setPlugin(PluginInterface $plugin)
     {
         static::$plugin = $plugin;
