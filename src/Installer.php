@@ -109,7 +109,7 @@ class Installer extends LibraryInstaller
     
     /**
      * Get the temp path.
-     * 
+     *
      * @param  \Composer\Package\PackageInterface  $package
      * @return string
      */
@@ -120,7 +120,7 @@ class Installer extends LibraryInstaller
     
     /**
      * Get the list of files to install.
-     * 
+     *
      * @param  \Composer\Package\PackageInterface  $package
      * @return array
      */
@@ -131,7 +131,7 @@ class Installer extends LibraryInstaller
     
     /**
      * Set up the .gitignore file.
-     * 
+     *
      * @param  \Composer\Package\PackageInterface  $package
      * @return void
      */
@@ -190,7 +190,7 @@ class Installer extends LibraryInstaller
     
     /**
      * Set up the .env file.
-     * 
+     *
      * @param  \Composer\Package\PackageInterface  $package
      * @return void
      */
