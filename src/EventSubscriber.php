@@ -2,6 +2,7 @@
 
 use Composer\Script\ScriptEvents;
 use Composer\EventDispatcher\Event;
+use Composer\Installer\PackageEvent;
 use Composer\Plugin\PluginInterface;
 use Composer\Installer\PackageEvents;
 use Composer\EventDispatcher\EventSubscriberInterface;
@@ -24,9 +25,8 @@ class EventSubscriber implements EventSubscriberInterface
         return [
             ScriptEvents::PRE_INSTALL_CMD => 'configureComposerJson',
             ScriptEvents::PRE_UPDATE_CMD => 'configureComposerJson',
-//            PackageEvents::POST_PACKAGE_INSTALL => 'handle',
-//            PackageEvents::PRE_PACKAGE_UPDATE => 'handle',
-//            PackageEvents::POST_PACKAGE_UPDATE => 'handle',
+            PackageEvents::POST_PACKAGE_INSTALL => 'cleanWordPressInstallation',
+            PackageEvents::POST_PACKAGE_UPDATE => 'cleanWordPressInstallation',
         ];
     }
     
@@ -51,5 +51,18 @@ class EventSubscriber implements EventSubscriberInterface
         }
         
         $this->instances[ComposerConfigurator::class]->configure($event->getComposer(), $event->getIO());
+    }
+    
+    public function cleanWordPressInstallation(PackageEvent $event)
+    {
+        if ($event->getOperation()->getPackage()->getName() != 'johnpbloch/wordpress') {
+            return;
+        }
+        
+        if (! isset($this->instances[WordPressInstallationCleaner::class])) {
+            $this->instances[WordPressInstallationCleaner::class] = new WordPressInstallationCleaner(static::$plugin);
+        }
+        
+        $this->instances[WordPressInstallationCleaner::class]->clean($event->getComposer(), $event->getIO());
     }
 }
