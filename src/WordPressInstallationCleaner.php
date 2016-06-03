@@ -30,7 +30,7 @@ class WordPressInstallationCleaner
         $rootPkg = $composer->getPackage();
         $extra = $rootPkg->getExtra();
         
-        if (! $extra['wordpress-install-dir']) {
+        if (! isset($extra['wordpress-install-dir'])) {
             return;
         }
         
