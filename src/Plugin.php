@@ -45,8 +45,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        var_dump('plugin activated');
-        
         $installer = new Installer($io, $composer, $this);
         
         $composer->getInstallationManager()->addInstaller($installer);
@@ -167,7 +165,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $defaultComment = ' [<comment>' . $default . '</comment>]';
         }
         
-        $question = preg_replace('/(\??)\s*$/', '', $question . $defaultComment . '$1 ');
+        $question = preg_replace('/(\??)\s*$/', $defaultComment . '$1 ', $question);
         
         return $this->io->ask($question, $default);
     }
