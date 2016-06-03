@@ -97,7 +97,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     
     /**
      * Get the public directory.
-     * 
+     *
      * @return string
      */
     public function getPublicDirectory()
@@ -144,7 +144,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
         
         if ($this->io->isInteractive()) {
-            return $this->publicDirectory = trim($this->io->ask($publicDirQuestion, $public), '/');
+            return $this->publicDirectory = trim($this->ask($publicDirQuestion, $public), '/');
         }
         
         return $this->publicDirectory = $public;
@@ -152,7 +152,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     
     /**
      * Add default value to IOInterface::ask question.
-     * 
+     *
      * @param  string  $question
      * @param  mixed  $default = null
      * @return mixed

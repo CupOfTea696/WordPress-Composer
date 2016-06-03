@@ -70,7 +70,7 @@ class ComposerConfigurator
     
     /**
      * Create a new ComposerConfigurator instance.
-     * 
+     *
      * @param  \Composer\Plugin\PluginInterface  $plugin
      * @return void
      */
@@ -81,7 +81,7 @@ class ComposerConfigurator
     
     /**
      * Configure the composer.json file.
-     * 
+     *
      * @return void
      */
     public function configure(Composer $composer, IOInterface $io)
@@ -123,7 +123,7 @@ class ComposerConfigurator
     
     /**
      * Check if the public directory is set in the composer.json file.
-     * 
+     *
      * @return bool
      */
     protected function isPublicDirectorySet()
@@ -136,7 +136,7 @@ class ComposerConfigurator
     
     /**
      * Set the public directory in the composer.json.
-     * 
+     *
      * @param  array  $json
      * @return void
      */
@@ -147,7 +147,7 @@ class ComposerConfigurator
     
     /**
      * Check if the WordPress installation directory is set in the composer.json file.
-     * 
+     *
      * @return bool
      */
     protected function isWordPressInstallDirectorySet()
@@ -160,7 +160,7 @@ class ComposerConfigurator
     
     /**
      * Set the WordPress installation directory in the composer.json.
-     * 
+     *
      * @param  array  $json
      * @return void
      */
@@ -171,7 +171,7 @@ class ComposerConfigurator
     
     /**
      * Check if the additional repositories for using WordPress with composer are set.
-     * 
+     *
      * @return bool
      */
     protected function areReposConfigured()
@@ -185,7 +185,7 @@ class ComposerConfigurator
     /**
      * Configure additional repositories for using WordPress with composer,
      * and set the installation directories for WordPress packages.
-     * 
+     *
      * @param  array  $json
      * @return void
      */
@@ -224,7 +224,7 @@ class ComposerConfigurator
     
     /**
      * Check if autmatic sorting of linked packages is enabled.
-     * 
+     *
      * @return bool
      */
     protected function isSortingConfigured()
@@ -234,7 +234,7 @@ class ComposerConfigurator
     
     /**
      * Configure automatic sorting of linked packages.
-     * 
+     *
      * @param  array  $json
      * @return void
      */
@@ -245,7 +245,7 @@ class ComposerConfigurator
     
     /**
      * Sort the composer.json properties.
-     * 
+     *
      * @param  array  $json
      * @return void
      */
@@ -270,7 +270,7 @@ class ComposerConfigurator
     
     /**
      * Read the composer.json file.
-     * 
+     *
      * @return array
      */
     protected function readJson()
@@ -282,7 +282,7 @@ class ComposerConfigurator
     
     /**
      * Save the composer.json file.
-     * 
+     *
      * @param array $json
      */
     protected function saveJson($json)
@@ -292,7 +292,7 @@ class ComposerConfigurator
     
     /**
      * Recursive version of preg_grep.
-     * 
+     *
      * @param  string  $pattern
      * @param  array  $haystack
      * @return array
@@ -318,7 +318,7 @@ class ComposerConfigurator
     
     /**
      * Sort an array by its keys, using a given array as the sort order.
-     * 
+     *
      * @param  array  $array
      * @param  array  $order
      * @return array
