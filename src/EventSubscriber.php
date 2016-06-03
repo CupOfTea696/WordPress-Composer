@@ -25,6 +25,7 @@ class EventSubscriber implements EventSubscriberInterface
         return [
             ScriptEvents::PRE_INSTALL_CMD => 'configureComposerJson',
             ScriptEvents::PRE_UPDATE_CMD => 'configureComposerJson',
+            PackageEvents::PRE_PACKAGE_INSTALL => 'setWordPressInstallDirectory',
             PackageEvents::POST_PACKAGE_INSTALL => 'cleanWordPressInstallation',
             PackageEvents::POST_PACKAGE_UPDATE => 'cleanWordPressInstallation',
         ];
@@ -53,6 +54,27 @@ class EventSubscriber implements EventSubscriberInterface
         }
         
         $this->instances[ComposerConfigurator::class]->configure($event->getComposer(), $event->getIO());
+    }
+    
+    public function setWordPressInstallDirectory(Event $event)
+    {
+        $composer = $event->getComposer();
+        $rootPkg = $composer->getPackage();
+        
+        if (! $rootPkg) {
+            return;
+        }
+        
+        $extra = $rootPkg->getExtra();
+        
+        if (isset($extra['wordpress-install-dir']) && $extra['wordpress-install-dir']) {
+            return;
+        }
+        
+        $extra['wordpress-install-dir'] = static::$plugin->getPublicDirectory() . '/wp';
+        
+        $rootPkg->setExtra($extra);
+        $composer->setPackage($rootPkg);
     }
     
     public function cleanWordPressInstallation(PackageEvent $event)
