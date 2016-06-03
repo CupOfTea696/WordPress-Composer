@@ -37,7 +37,7 @@ class WordPressInstallationCleaner
      */
     public function clean(Composer $composer, IOInterface $io)
     {
-        $rootPkg = $this->composer->getPackage();
+        $rootPkg = $composer->getPackage();
         $extra = $rootPkg->getExtra();
         
         if (! $extra['wordpress-install-dir']) {
