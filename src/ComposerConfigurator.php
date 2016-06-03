@@ -7,8 +7,6 @@ use Composer\Plugin\PluginInterface;
 
 class ComposerConfigurator
 {
-    protected $plugin;
-    
     /**
      * @var The composer instance
      */
@@ -67,17 +65,6 @@ class ComposerConfigurator
         'exclude-from-classmap',
         'files',
     ];
-    
-    /**
-     * Create a new ComposerConfigurator instance.
-     *
-     * @param  \Composer\Plugin\PluginInterface  $plugin
-     * @return void
-     */
-    public function __construct(PluginInterface $plugin)
-    {
-        $this->plugin = $plugin;
-    }
     
     /**
      * Configure the composer.json file.
@@ -142,7 +129,7 @@ class ComposerConfigurator
      */
     protected function setPublicDirectory(&$json)
     {
-        $json['extra']['public-dir'] = $this->plugin->getPublicDirectory();
+        $json['extra']['public-dir'] = static::$plugin->getPublicDirectory();
     }
     
     /**
@@ -166,7 +153,7 @@ class ComposerConfigurator
      */
     protected function setWordPressInstallDirectory(&$json)
     {
-        $json['extra']['wordpress-install-dir'] = $this->plugin->getPublicDirectory() . '/wp';
+        $json['extra']['wordpress-install-dir'] = static::$plugin->getPublicDirectory() . '/wp';
     }
     
     /**
@@ -191,7 +178,7 @@ class ComposerConfigurator
      */
     protected function configureRepos(&$json)
     {
-        $public = $this->plugin->getPublicDirectory();
+        $public = static::$plugin->getPublicDirectory();
         $plugins_path = $public . '/wp/wp-content/plugins/{$name}/';
         $themes_path = $public . '/themes/{$name}/';
         

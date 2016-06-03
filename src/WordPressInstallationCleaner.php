@@ -5,21 +5,8 @@ use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 use Composer\Plugin\PluginInterface;
 
-class WordPressInstallationCleaner
+class WordPressInstallationCleaner extends Singleton
 {
-    protected $plugin;
-    
-    /**
-     * Create a new WordPressInstallationCleaner instance.
-     * 
-     * @param  \Composer\Plugin\PluginInterface  $plugin
-     * @return void
-     */
-    public function __construct(PluginInterface $plugin)
-    {
-        $this->plugin = $plugin;
-    }
-    
     /**
      * Clean up the WordPress installation directory.
      * 
