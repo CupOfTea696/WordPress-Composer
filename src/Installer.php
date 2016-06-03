@@ -138,13 +138,15 @@ class Installer extends LibraryInstaller
     protected function installGitignore(PackageInterface $package)
     {
         $installPath = $this->getInstallPath($package) . '/.gitignore';
-        $downloadPath = $this->getTempPath($package) . '/.gitignore';
+        $templatePath = $this->getTempPath($package) . '/.gitignore.template';
+        
+        $data = ['APP_PUBLIC' => $this->plugin->getPublicDirectory()];
         
         if (! file_exists($installPath)) {
-            return $this->filesystem->rename($downloadPath, $installPath);
+            return $this->compileTemplate($templatePath, $installPath, $data);
         }
         
-        $downloadGitignore = file_get_contents($downloadPath);
+        $downloadGitignore = $this->compileTemplate($templatePath, $data);
         $installGitignore = file_get_contents($installPath);
         
         $gitignore = preg_split('/\r?\n/', $downloadGitignore . PHP_EOL . '# User rules' . PHP_EOL . $installGitignore);
@@ -213,8 +215,7 @@ class Installer extends LibraryInstaller
             'NONCE_SALT'
         ];
         
-        $env = [];
-        $env['APP_PUBLIC'] = $this->plugin->getPublicDirectory();
+        $env = ['APP_PUBLIC' => $this->plugin->getPublicDirectory()];
         
         foreach ($saltKeys as $salt) {
             $env[$salt] = $this->generateSalt();
@@ -222,8 +223,7 @@ class Installer extends LibraryInstaller
         
         $this->compileTemplate($templatePath, $dotEnvPath, $env);
         
-        $envExample = [];
-        $envExample['APP_PUBLIC'] = 'public';
+        $envExample = ['APP_PUBLIC' => 'public'];
         
         foreach ($saltKeys as $salt) {
             $envExample[$salt] = 'YOUR_' . $salt . '_GOES_HERE';
@@ -310,8 +310,13 @@ class Installer extends LibraryInstaller
         }
     }
     
-    private function compileTemplate($templatePath, $destinationPath, $data)
+    private function compileTemplate($templatePath, $destinationPath, $data = null)
     {
+        if ($data == null) {
+            $data = $destinationPath;
+            $destinationPath = null;
+        }
+        
         if (! isset($this->templates[$templatePath])) {
             $this->templates[$templatePath] = file_get_contents($templatePath);
         }
@@ -324,7 +329,11 @@ class Installer extends LibraryInstaller
             return $matches[0];
         }, $this->templates[$templatePath]);
         
-        file_put_contents($destinationPath, $compiled);
+        if ($destinationPath) {
+            file_put_contents($destinationPath, $compiled);
+        }
+        
+        return $compiled;
     }
     
     private function generateSalt()
