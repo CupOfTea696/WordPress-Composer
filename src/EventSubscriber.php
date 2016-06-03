@@ -3,11 +3,23 @@
 use Composer\Script\ScriptEvents;
 use Composer\EventDispatcher\Event;
 use Composer\Installer\PackageEvent;
+use Composer\Plugin\PluginInterface;
 use Composer\Installer\PackageEvents;
 use Composer\EventDispatcher\EventSubscriberInterface;
 
-class EventSubscriber extends Singleton implements EventSubscriberInterface
+class EventSubscriber implements EventSubscriberInterface
 {
+    protected static $instance;
+    
+    protected static $plugin;
+    
+    protected $instances = [];
+    
+    protected function __construct()
+    {
+        //
+    }
+    
     public static function getSubscribedEvents()
     {
         return [
@@ -19,30 +31,29 @@ class EventSubscriber extends Singleton implements EventSubscriberInterface
         ];
     }
     
-    public function configureComposerJson(Event $event)
+    public static function getInstance()
     {
-        ComposerConfigurator::getInstance()->configure($event->getComposer(), $event->getIO());
+        if (static::$instance === null) {
+            static::$instance = new static();
+        }
+        
+        return static::$instance;
     }
     
-    public function setWordPressInstallDirectory(Event $event)
+    public static function setPlugin(PluginInterface $plugin)
     {
-        $composer = $event->getComposer();
-        $rootPkg = $composer->getPackage();
+        static::$plugin = $plugin;
+    }
+    
+    public function configureComposerJson(Event $event)
+    {
+        var_dump('Configuring Composer');
         
-        if (! $rootPkg) {
-            return;
+        if (! isset($this->instances[ComposerConfigurator::class])) {
+            $this->instances[ComposerConfigurator::class] = new ComposerConfigurator(static::$plugin);
         }
         
-        $extra = $rootPkg->getExtra();
-        
-        if (isset($extra['wordpress-install-dir']) && $extra['wordpress-install-dir']) {
-            return;
-        }
-        
-        $extra['wordpress-install-dir'] = static::getPlugin()->getPublicDirectory() . '/wp';
-        
-        $rootPkg->setExtra($extra);
-        $composer->setPackage($rootPkg);
+        $this->instances[ComposerConfigurator::class]->configure($event->getComposer(), $event->getIO());
     }
     
     public function setWordPressInstallDirectory(Event $event)
@@ -68,10 +79,16 @@ class EventSubscriber extends Singleton implements EventSubscriberInterface
     
     public function cleanWordPressInstallation(PackageEvent $event)
     {
+        var_dump('Cleaning WordPress');
+        
         if ($event->getOperation()->getPackage()->getName() != 'johnpbloch/wordpress') {
             return;
         }
         
-        WordPressInstallationCleaner::getInstance()->clean($event->getComposer(), $event->getIO());
+        if (! isset($this->instances[WordPressInstallationCleaner::class])) {
+            $this->instances[WordPressInstallationCleaner::class] = new WordPressInstallationCleaner(static::$plugin);
+        }
+        
+        $this->instances[WordPressInstallationCleaner::class]->clean($event->getComposer(), $event->getIO());
     }
 }

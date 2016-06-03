@@ -5,8 +5,10 @@ use Composer\Json\JsonFile;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 
-class ComposerConfigurator extends Singleton
+class ComposerConfigurator
 {
+    protected $plugin;
+    
     /**
      * @var The composer instance
      */
@@ -65,6 +67,17 @@ class ComposerConfigurator extends Singleton
         'exclude-from-classmap',
         'files',
     ];
+    
+    /**
+     * Create a new ComposerConfigurator instance.
+     *
+     * @param  \Composer\Plugin\PluginInterface  $plugin
+     * @return void
+     */
+    public function __construct(PluginInterface $plugin)
+    {
+        $this->plugin = $plugin;
+    }
     
     /**
      * Configure the composer.json file.
@@ -129,7 +142,7 @@ class ComposerConfigurator extends Singleton
      */
     protected function setPublicDirectory(&$json)
     {
-        $json['extra']['public-dir'] = static::getPlugin()->getPublicDirectory();
+        $json['extra']['public-dir'] = $this->plugin->getPublicDirectory();
     }
     
     /**
@@ -153,7 +166,7 @@ class ComposerConfigurator extends Singleton
      */
     protected function setWordPressInstallDirectory(&$json)
     {
-        $json['extra']['wordpress-install-dir'] = static::getPlugin()->getPublicDirectory() . '/wp';
+        $json['extra']['wordpress-install-dir'] = $this->plugin->getPublicDirectory() . '/wp';
     }
     
     /**
@@ -178,7 +191,7 @@ class ComposerConfigurator extends Singleton
      */
     protected function configureRepos(&$json)
     {
-        $public = static::getPlugin()->getPublicDirectory();
+        $public = $this->plugin->getPublicDirectory();
         $plugins_path = $public . '/wp/wp-content/plugins/{$name}/';
         $themes_path = $public . '/themes/{$name}/';
         
