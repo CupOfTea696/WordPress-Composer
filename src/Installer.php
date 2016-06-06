@@ -249,12 +249,17 @@ class Installer extends LibraryInstaller
         $files = $this->getInstallFiles($package);
         $installPath = $this->getInstallPath($package);
         $downloadPath = $this->getTempPath($package);
+        $publicPath = $this->plugin->getPublicDirectory();
         
         $this->downloadManager->download($package, $downloadPath);
         
         foreach ($files as $file) {
             if (! file_exists($downloadPath . '/' . $file)) {
                 throw new FilesystemException('The file ' . $file . ' could not be found. Please report to cupoftea/wordpress.');
+            }
+            
+            if ($publicPath != 'public') {
+                $file = preg_replace('/^public/', $publicPath, $file);
             }
             
             if (preg_match('/\\/$/', $file)) {
