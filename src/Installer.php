@@ -244,7 +244,7 @@ class Installer extends LibraryInstaller
     protected function configureComposer()
     {
         $composerConfigurator = new ComposerConfigurator($this->plugin);
-        $composerConfigurator->configure($this->composer, $this->io;
+        $composerConfigurator->configure($this->composer, $this->io);
     }
     
     /**
