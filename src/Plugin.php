@@ -172,7 +172,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $defaultComment = ' [<comment>' . $default . '</comment>]';
         }
         
-        $question = preg_replace('/(\??)\s*$/', $defaultComment . '$1 ', $question);
+        $question = preg_replace('/(?:(\?)\s*$|(\?)?\s+$)|(?<!\s|\?)$/', $defaultComment . '$1 ', $question);
         
         return $this->io->ask($question, $default);
     }
