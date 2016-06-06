@@ -94,8 +94,12 @@ class EventSubscriber implements EventSubscriberInterface
      * @param  \Composer\EventDispatcher\Event $event
      * @return void
      */
-    public function setWordPressInstallDirectory(Event $event)
+    public function setWordPressInstallDirectory(PackageEvent $event)
     {
+        if ($event->getOperation()->getPackage()->getName() != 'johnpbloch/wordpress') {
+            return;
+        }
+        
         $composer = $event->getComposer();
         $rootPkg = $composer->getPackage();
         
