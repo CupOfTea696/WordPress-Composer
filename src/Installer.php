@@ -241,6 +241,12 @@ class Installer extends LibraryInstaller
         $this->compileTemplate($templatePath, $dotEnvExamplePath, $envExample);
     }
     
+    protected function configureComposer()
+    {
+        $composerConfigurator = new ComposerConfigurator($this->plugin);
+        $composerConfigurator->configure($this->composer, $this->io;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -275,6 +281,7 @@ class Installer extends LibraryInstaller
         
         $this->installGitignore($package);
         $this->installDotEnv($package);
+        $this->configureComposer();
         
         $this->filesystem->remove($downloadPath);
     }
