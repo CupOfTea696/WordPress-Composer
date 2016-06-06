@@ -258,8 +258,10 @@ class Installer extends LibraryInstaller
                 throw new FilesystemException('The file ' . $file . ' could not be found. Please report to cupoftea/wordpress.');
             }
             
+            $installFile = $installPath . '/' . $file;
+            
             if ($publicPath != 'public') {
-                $file = preg_replace('/^public/', $publicPath, $file);
+                $installFile = $installPath . '/' . preg_replace('/^public/', $publicPath, $file);
             }
             
             if (preg_match('/\\/$/', $file)) {
