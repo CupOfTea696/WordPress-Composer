@@ -118,7 +118,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if ($rootPkg) {
             $extra = $rootPkg->getExtra();
             
-            if ($extra && empty($extra['public-dir'])) {
+            if ($extra && ! empty($extra['public-dir'])) {
                 return $this->publicDirectory = $extra['public-dir'];
             }
         }
