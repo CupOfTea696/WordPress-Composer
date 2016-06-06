@@ -7,6 +7,9 @@ use Composer\Plugin\PluginInterface;
 
 class ComposerConfigurator
 {
+    /**
+     * @var \Composer\Plugin\PluginInterface
+     */
     protected $plugin;
     
     /**

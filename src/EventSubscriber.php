@@ -9,17 +9,34 @@ use Composer\EventDispatcher\EventSubscriberInterface;
 
 class EventSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @var EventSubscriber
+     */
     protected static $instance;
     
+    /**
+     * @var \Composer\Plugin\PluginInterface
+     */
     protected static $plugin;
     
+    /**
+     * @var array
+     */
     protected $instances = [];
     
+    /**
+     * Create a new EventSubscriber instance.
+     * 
+     * @return void
+     */
     protected function __construct()
     {
         //
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public static function getSubscribedEvents()
     {
         return [
@@ -31,6 +48,11 @@ class EventSubscriber implements EventSubscriberInterface
         ];
     }
     
+    /**
+     * Get the EventSubscriber instance.
+     * 
+     * @return EventSubscriber
+     */
     public static function getInstance()
     {
         if (static::$instance === null) {
@@ -40,11 +62,23 @@ class EventSubscriber implements EventSubscriberInterface
         return static::$instance;
     }
     
+    /**
+     * Set the \Composer\Plugin\PluginInterface instance.
+     * 
+     * @param  \Composer\Plugin\PluginInterface $plugin
+     * @return void
+     */
     public static function setPlugin(PluginInterface $plugin)
     {
         static::$plugin = $plugin;
     }
     
+    /**
+     * Configure the composer sonfiguration file.
+     * 
+     * @param  \Composer\EventDispatcher\Event $event
+     * @return void
+     */
     public function configureComposerJson(Event $event)
     {
         if (! isset($this->instances[ComposerConfigurator::class])) {
@@ -54,6 +88,12 @@ class EventSubscriber implements EventSubscriberInterface
         $this->instances[ComposerConfigurator::class]->configure($event->getComposer(), $event->getIO());
     }
     
+    /**
+     * Set the WordPress installation directory.
+     * 
+     * @param  \Composer\EventDispatcher\Event $event
+     * @return void
+     */
     public function setWordPressInstallDirectory(Event $event)
     {
         $composer = $event->getComposer();
@@ -75,6 +115,12 @@ class EventSubscriber implements EventSubscriberInterface
         $composer->setPackage($rootPkg);
     }
     
+    /**
+     * Clean the WordPress installation.
+     * 
+     * @param  \Composer\Installer\PackageEvent $event
+     * @return void
+     */
     public function cleanWordPressInstallation(PackageEvent $event)
     {
         if ($event->getOperation()->getPackage()->getName() != 'johnpbloch/wordpress') {

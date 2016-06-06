@@ -86,6 +86,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         return $eventMap;
     }
     
+    /**
+     * Dynamically forward events.
+     * 
+     * @param  string $method
+     * @param  array $args
+     * @return void
+     */
     public function __call($method, $args)
     {
         if (preg_match('/^forwardEventTo([A-Z][A-z]+)$/', $method, $matches)) {

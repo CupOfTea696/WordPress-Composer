@@ -7,6 +7,9 @@ use Composer\Plugin\PluginInterface;
 
 class WordPressInstallationCleaner
 {
+    /**
+     * @var \Composer\Plugin\PluginInterface
+     */
     protected $plugin;
     
     /**

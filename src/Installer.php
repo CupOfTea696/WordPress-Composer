@@ -20,10 +20,19 @@ class Installer extends LibraryInstaller
      */
     const PACKAGE_TYPE = 'cupoftea-wordpress';
     
+    /**
+     * @var \Composer\Plugin\PluginInterface
+     */
     protected $plugin;
     
+    /**
+     * @var array
+     */
     protected $templates = [];
     
+    /**
+     * {@inheritDoc}
+     */
     public function __construct(IOInterface $io, Composer $composer, PluginInterface $plugin, $type = 'library', Filesystem $filesystem = null, BinaryInstaller $binaryInstaller = null)
     {
         parent::__construct($io, $composer, $type, $filesystem, $binaryInstaller);
@@ -310,6 +319,14 @@ class Installer extends LibraryInstaller
         }
     }
     
+    /**
+     * Compile a template file.
+     * 
+     * @param  string  $templatePath
+     * @param  string  $destinationPath
+     * @param  array|null  $data
+     * @return string
+     */
     private function compileTemplate($templatePath, $destinationPath, $data = null)
     {
         if ($data == null) {
@@ -336,6 +353,11 @@ class Installer extends LibraryInstaller
         return $compiled;
     }
     
+    /**
+     * Generate a Salt Key
+     * 
+     * @return string
+     */
     private function generateSalt()
     {
         $str = '';
