@@ -1,7 +1,6 @@
 <?php namespace CupOfTea\WordPress\Composer;
 
 use Composer\Composer;
-use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 use Composer\Plugin\PluginInterface;
 
