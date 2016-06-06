@@ -114,10 +114,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
         
         $rootPkg = $this->composer->getPackage();
-        $extra = $rootPkg->getExtra();
         
-        if ($rootPkg && $extra && $extra['public-dir']) {
-            return $this->publicDirectory = $extra['public-dir'];
+        if ($rootPkg) {
+            $extra = $rootPkg->getExtra();
+            
+            if ($extra && empty($extra['public-dir'])) {
+                return $this->publicDirectory = $extra['public-dir'];
+            }
         }
         
         $common_public_dirs = [
