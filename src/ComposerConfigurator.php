@@ -195,7 +195,7 @@ class ComposerConfigurator
     protected function configureRepos(&$json)
     {
         $public = $this->plugin->getPublicDirectory();
-        $plugins_path = $public . '/wp/wp-content/plugins/{$name}/';
+        $plugins_path = $public . '/plugins/{$name}/';
         $themes_path = $public . '/themes/{$name}/';
         
         $json['repositories'][] = [
