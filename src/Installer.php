@@ -265,12 +265,12 @@ class Installer extends LibraryInstaller
             }
             
             if (preg_match('/\\/$/', $file)) {
-                $this->filesystem->ensureDirectoryExists($installPath . '/' . $file);
+                $this->filesystem->ensureDirectoryExists($installFile);
                 
                 continue;
             }
             
-            $this->filesystem->rename($downloadPath . '/' . $file, $installPath . '/' . $file);
+            $this->filesystem->rename($downloadPath . '/' . $file, $installFile);
         }
         
         $this->installGitignore($package);
