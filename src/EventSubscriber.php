@@ -96,7 +96,7 @@ class EventSubscriber implements EventSubscriberInterface
      */
     public function setWordPressInstallDirectory(PackageEvent $event)
     {
-        if ($event->getOperation()->getPackage()->getName() != 'johnpbloch/wordpress') {
+        if ($this->getPackageName($event) != 'johnpbloch/wordpress') {
             return;
         }
         
@@ -127,7 +127,7 @@ class EventSubscriber implements EventSubscriberInterface
      */
     public function cleanWordPressInstallation(PackageEvent $event)
     {
-        if ($event->getOperation()->getPackage()->getName() != 'johnpbloch/wordpress') {
+        if ($this->getPackageName($event) != 'johnpbloch/wordpress') {
             return;
         }
         
@@ -136,5 +136,21 @@ class EventSubscriber implements EventSubscriberInterface
         }
         
         $this->instances[WordPressInstallationCleaner::class]->clean($event->getComposer(), $event->getIO());
+    }
+    
+    /**
+     * Get package name from a PackageEvent
+     * @param  \Composer\Installer\PackageEvent $event
+     * @return string
+     */
+    protected function getPackageName(PackageEvent $event)
+    {
+        $operation = $event->getOperation();
+        
+        if (method_exists($operation, 'getPackage')) {
+            return $operation->getPackage()->getName();
+        }
+        
+        return $operation->getTargetPackage()->getName();
     }
 }
