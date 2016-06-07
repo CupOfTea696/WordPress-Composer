@@ -75,7 +75,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->io = $io;
         
         include_once dirname(__FILE__) . '/helpers.php';
-        include_once $this->getVendorDirectory() . '/autoload.php';
+        
+        if (file_exists($this->getVendorDirectory() . '/autoload.php')) {
+            include_once $this->getVendorDirectory() . '/autoload.php';
+        }
         
         $this->env = new Dotenv($this->getRootDirectory());
         $this->env->overload();
