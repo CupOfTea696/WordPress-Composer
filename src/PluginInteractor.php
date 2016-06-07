@@ -183,31 +183,30 @@ class PluginInteractor
      */
     protected function execAction($action, $plugin)
     {
-        switch ($action) {
-            case 'activate':
-            case 'uninstall':
-                $exec = $action . '_plugin';
-                break;
-            case 'deactivate':
-                $exec = $action . '_plugins';
-                break;
-            default:
-                return false;
+        if ($action == 'activate') {
+            wp_cache_set('plugins', [], 'plugins');
+            
+            return activate_plugin($plugin) === null;
         }
         
-        switch ($action) {
-            case 'activate':
-            case 'deactivate':
-                $success = null;
-                break;
-            case 'uninstall':
-                $success = true;
-                break;
-            default:
-                return false;
+        if ($action == 'deactivate') {
+            return deactivate_plugins($plugin) === null;
         }
         
-        return $exec($plugin) === $success;
+        if ($action == 'uninstall') {
+            if (defined('WP_UNINSTALL_PLUGIN')) {
+                if (! function_exists('runkit_constant_remove')) {
+                    return false;
+                }
+                
+                runkit_constant_remove('WP_UNINSTALL_PLUGIN');
+            }
+            
+            $r = uninstall_plugin($plugin);
+            var_dump($r);
+            
+            return $r === true;
+        }
     }
     
     /**
