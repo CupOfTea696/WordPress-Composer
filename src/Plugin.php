@@ -75,7 +75,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         
         include_once dirname(__FILE__) . '/helpers.php';
         
-        if (file_exists($this->getVendorDirectory() . '/vlucas/phpdotenv/autoload.php')) {
+        if (file_exists($this->getVendorDirectory() . '/autoload.php')) {
             include_once $this->getVendorDirectory() . '/autoload.php';
             
             $this->env = new \Dotenv\Dotenv($this->getRootDirectory());
