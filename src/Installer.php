@@ -21,11 +21,15 @@ class Installer extends LibraryInstaller
     const PACKAGE_TYPE = 'cupoftea-wordpress';
     
     /**
+     * The Plugin instance.
+     * 
      * @var \Composer\Plugin\PluginInterface
      */
     protected $plugin;
     
     /**
+     * Template contents.
+     * 
      * @var array
      */
     protected $templates = [];
@@ -241,6 +245,11 @@ class Installer extends LibraryInstaller
         $this->compileTemplate($templatePath, $dotEnvExamplePath, $envExample);
     }
     
+    /**
+     * Configure Composer.
+     * 
+     * @return void
+     */
     protected function configureComposer()
     {
         $composerConfigurator = new ComposerConfigurator($this->plugin);

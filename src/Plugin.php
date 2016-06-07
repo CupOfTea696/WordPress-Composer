@@ -1,5 +1,7 @@
 <?php namespace CupOfTea\WordPress\Composer;
 
+use Dotenv\Dotenv;
+use Composer\Config;
 use Composer\Composer;
 use Composer\Json\JsonFile;
 use Composer\IO\IOInterface;
@@ -26,17 +28,37 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     const VERSION = '0.0.0';
     
     /**
-     * @var The composer instance
+     * The composer instance.
+     * 
+     * @var \Composer\Composer
      */
     protected $composer;
     
     /**
-     * @var The IO instance
+     * The IOInterface instance.
+     * 
+     * @var \Composer\IO\IOInterface
      */
     protected $io;
     
     /**
-     * @var Public directory name.
+     * The Dotenv instance.
+     * 
+     * @var \Dotenv\Dotenv
+     */
+    protected $env;
+    
+    /**
+     * Plugin class instances.
+     * 
+     * @var array
+     */
+    protected $instances = [];
+    
+    /**
+     * Public directory name.
+     * 
+     * @var string
      */
     protected $publicDirectory;
     
@@ -51,6 +73,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         
         $this->composer = $composer;
         $this->io = $io;
+        
+        include_once dirname(__FILE__) . '/helpers.php';
+        include_once $this->getVendorDirectory() . '/autoload.php';
+        
+        $this->env = new Dotenv($this->getRootDirectory());
+        $this->env->overload();
         
         EventSubscriber::setPlugin($this);
     }
@@ -100,6 +128,43 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             
             EventSubscriber::getInstance()->$listener($args[0]);
         }
+    }
+    
+    /**
+     * Get an instance of a class.
+     * 
+     * @param  string  $class
+     * @return object
+     */
+    public function getInstanceOf($class)
+    {
+        if (! isset($this->instances[$class])) {
+            $this->instances[$class] = new $class($this);
+        }
+        
+        return $this->instances[$class];
+    }
+    
+    /**
+     * Get the root directory.
+     * 
+     * @return string
+     */
+    public function getRootDirectory()
+    {
+        $config = $this->composer->getConfig();
+        
+        return str_replace($config->get('vendor-dir', Config::RELATIVE_PATHS), '', $config->get('vendor-dir'));
+    }
+    
+    /**
+     * Get the vendor directory.
+     * 
+     * @return string
+     */
+    public function getVendorDirectory()
+    {
+        return $this->composer->getConfig()->get('vendor-dir');
     }
     
     /**

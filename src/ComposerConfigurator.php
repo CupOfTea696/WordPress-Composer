@@ -8,27 +8,37 @@ use Composer\Plugin\PluginInterface;
 class ComposerConfigurator
 {
     /**
+     * The Plugin instance.
+     * 
      * @var \Composer\Plugin\PluginInterface
      */
     protected $plugin;
     
     /**
-     * @var The composer instance
+     * The composer instance.
+     * 
+     * @var \Composer\Composer
      */
     protected $composer;
     
     /**
-     * @var The IO instance
+     * The IOInterface instance.
+     * 
+     * @var \Composer\IO\IOInterface
      */
     protected $io;
     
     /**
-     * @var The composer.json file
+     * The composer.json file.
+     * 
+     * @var string
      */
     protected $composerJson;
     
     /**
-     * @var Sort order for composer.json properties
+     * Sort order for composer.json properties.
+     * 
+     * @var array
      */
     protected $composerOrder = [
         'name',
@@ -61,7 +71,9 @@ class ComposerConfigurator
     ];
     
     /**
-     * @var Sort order for the composer.json autoload & autoload-dev properties
+     * Sort order for the composer.json autoload & autoload-dev properties.
+     * 
+     * @var array
      */
     protected $autoloadOrder = [
         'psr-4',
@@ -84,7 +96,9 @@ class ComposerConfigurator
     
     /**
      * Configure the composer.json file.
-     *
+     * 
+     * @param  \Composer\Composer  $composer
+     * @param  \Composer\IO\IOInterface  $io
      * @return void
      */
     public function configure(Composer $composer, IOInterface $io)

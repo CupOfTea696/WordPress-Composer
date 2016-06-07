@@ -5,24 +5,24 @@ use Composer\EventDispatcher\Event;
 use Composer\Installer\PackageEvent;
 use Composer\Plugin\PluginInterface;
 use Composer\Installer\PackageEvents;
+use Composer\Package\PackageInterface;
 use Composer\EventDispatcher\EventSubscriberInterface;
 
 class EventSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var EventSubscriber
+     * The EventSubscriber instance.
+     * 
+     * @var \CupOfTea\WordPress\Composer\EventSubscriber
      */
     protected static $instance;
     
     /**
+     * The Plugin instance.
+     * 
      * @var \Composer\Plugin\PluginInterface
      */
     protected static $plugin;
-    
-    /**
-     * @var array
-     */
-    protected $instances = [];
     
     /**
      * Create a new EventSubscriber instance.
@@ -43,8 +43,9 @@ class EventSubscriber implements EventSubscriberInterface
             ScriptEvents::PRE_INSTALL_CMD => 'configureComposerJson',
             ScriptEvents::PRE_UPDATE_CMD => 'configureComposerJson',
             PackageEvents::PRE_PACKAGE_INSTALL => 'setWordPressInstallDirectory',
-            PackageEvents::POST_PACKAGE_INSTALL => 'cleanWordPressInstallation',
+            PackageEvents::POST_PACKAGE_INSTALL => ['cleanWordPressInstallation', 'activateWordPressPlugin'],
             PackageEvents::POST_PACKAGE_UPDATE => 'cleanWordPressInstallation',
+            PackageEvents::PRE_PACKAGE_UNINSTALL => ['deactivateWordPressPlugin', 'uninstallWordPressPlugin'],
         ];
     }
     
@@ -81,11 +82,7 @@ class EventSubscriber implements EventSubscriberInterface
      */
     public function configureComposerJson(Event $event)
     {
-        if (! isset($this->instances[ComposerConfigurator::class])) {
-            $this->instances[ComposerConfigurator::class] = new ComposerConfigurator(static::$plugin);
-        }
-        
-        $this->instances[ComposerConfigurator::class]->configure($event->getComposer(), $event->getIO());
+        static::$plugin->getInstanceOf(ComposerConfigurator::class)->configure($event->getComposer(), $event->getIO());
     }
     
     /**
@@ -131,26 +128,102 @@ class EventSubscriber implements EventSubscriberInterface
             return;
         }
         
-        if (! isset($this->instances[WordPressInstallationCleaner::class])) {
-            $this->instances[WordPressInstallationCleaner::class] = new WordPressInstallationCleaner(static::$plugin);
-        }
-        
-        $this->instances[WordPressInstallationCleaner::class]->clean($event->getComposer(), $event->getIO());
+        static::$plugin->getInstanceOf(WordPressInstallationCleaner::class)->clean($event->getComposer(), $event->getIO());
     }
     
     /**
-     * Get package name from a PackageEvent
-     * @param  \Composer\Installer\PackageEvent $event
-     * @return string
+     * Activate a WordPress plugin.
+     * 
+     * @param  \Composer\Installer\PackageEvent  $event
+     * @return void
      */
-    protected function getPackageName(PackageEvent $event)
+    public function activateWordPressPlugin(PackageEvent $event)
+    {
+        if (! $this->isWordPressPlugin($this->getPackage($event))) {
+            return;
+        }
+        
+        static::$plugin->getInstanceOf(PluginInteractor::class)->activate(
+            $event->getComposer(),
+            $event->getIO(),
+            preg_replace('/^wpackagist-plugin\//', '', $this->getPackageName($event))
+        );
+    }
+    
+    /**
+     * Deactivate a WordPress plugin.
+     * 
+     * @param  \Composer\Installer\PackageEvent  $event
+     * @return void
+     */
+    public function deactivateWordPressPlugin(PackageEvent $event)
+    {
+        if (! $this->isWordPressPlugin($this->getPackage($event))) {
+            return;
+        }
+        
+        static::$plugin->getInstanceOf(PluginInteractor::class)->deactivate(
+            $event->getComposer(),
+            $event->getIO(),
+            preg_replace('/^wpackagist-plugin\//', '', $this->getPackageName($event))
+        );
+    }
+    
+    /**
+     * Uninstall a WordPress plugin.
+     * 
+     * @param  \Composer\Installer\PackageEvent  $event
+     * @return void
+     */
+    public function uninstallWordPressPlugin(PackageEvent $event)
+    {
+        if (! $this->isWordPressPlugin($this->getPackage($event))) {
+            return;
+        }
+        
+        static::$plugin->getInstanceOf(PluginInteractor::class)->uninstall(
+            $event->getComposer(),
+            $event->getIO(),
+            preg_replace('/^wpackagist-plugin\//', '', $this->getPackageName($event))
+        );
+    }
+    
+    /**
+     * Get the PackageInterface from a PackageEvent.
+     * 
+     * @param  \Composer\Installer\PackageEvent  $event
+     * @return \Composer\Package\PackageInterface
+     */
+    protected function getPackage(PackageEvent $event)
     {
         $operation = $event->getOperation();
         
         if (method_exists($operation, 'getPackage')) {
-            return $operation->getPackage()->getName();
+            return $operation->getPackage();
         }
         
-        return $operation->getTargetPackage()->getName();
+        return $operation->getTargetPackage();
+    }
+    
+    /**
+     * Get package name from a PackageEvent.
+     * 
+     * @param  \Composer\Installer\PackageEvent  $event
+     * @return string
+     */
+    protected function getPackageName(PackageEvent $event)
+    {
+        return $this->getPackage($event)->getName();
+    }
+    
+    /**
+     * Check if the package is a WordPress Plugin.
+     * 
+     * @param  \Composer\Package\PackageInterface  $package
+     * @return bool
+     */
+    protected function isWordPressPlugin(PackageInterface $package)
+    {
+        return $package->getType() == 'wordpress-plugin';
     }
 }

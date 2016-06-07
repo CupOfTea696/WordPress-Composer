@@ -7,6 +7,8 @@ use Composer\Plugin\PluginInterface;
 class WordPressInstallationCleaner
 {
     /**
+     * The Plugin instance.
+     * 
      * @var \Composer\Plugin\PluginInterface
      */
     protected $plugin;
@@ -25,6 +27,7 @@ class WordPressInstallationCleaner
     /**
      * Clean up the WordPress installation directory.
      * 
+     * @param  \Composer\Composer  $composer
      * @return void
      */
     public function clean(Composer $composer)
