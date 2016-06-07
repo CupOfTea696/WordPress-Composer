@@ -112,7 +112,7 @@ class PluginInteractor
             return $this->failed($action, $pluginName);
         }
         
-        if ($this->isPluginExcluded($pluginName, $action)) {
+        if ($this->isPluginExcluded($action, $pluginName)) {
             return $this->excluded($action, $pluginName);
         }
         
