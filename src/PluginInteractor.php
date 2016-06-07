@@ -30,6 +30,19 @@ class PluginInteractor
     protected $io;
     
     /**
+     * Plugins excluded from interactions. 
+     * 
+     * @var array
+     */
+    protected $exclude = [
+        'activate' => [
+            'wordfence',
+        ],
+        'deactivate' => [],
+        'uninstall' => [],
+    ];
+    
+    /**
      * Create a new PluginInteractor instance.
      * 
      * @param  \Composer\Plugin\PluginInterface  $plugin
@@ -50,24 +63,7 @@ class PluginInteractor
      */
     public function activate(Composer $composer, IOInterface $io, $pluginName)
     {
-        $this->init($composer, $io);
-        
-        $plugin = $this->getPlugin($pluginName);
-        $errorMsg = '<warning>The plugin ' . $pluginName . ' could not be activated.</warning>';
-        
-        if (! $plugin) {
-            return $io->write($errorMsg);
-        }
-        
-        $this->plugin->getInstanceOf(WordPressLoader::class)->load(function() use ($plugin, $pluginName, $errorMsg) {
-            $this->io->write('  - Activating plugin <info>' . $pluginName . '</info>');
-            $this->io->write('');
-            $r = activate_plugin($plugin);
-            
-            if ($r !== null) {
-                $this->io->write($errorMsg);
-            }
-        });
+        $this->interact($composer, $io, __FUNCTION__, $pluginName);
     }
     
     /**
@@ -80,23 +76,7 @@ class PluginInteractor
      */
     public function deactivate(Composer $composer, IOInterface $io, $pluginName)
     {
-        $this->init($composer, $io);
-        
-        $plugin = $this->getPlugin($pluginName);
-        $errorMsg = '<warning>The plugin ' . $pluginName . ' could not be deactivated.</warning>';
-        
-        if (! $plugin) {
-            return $io->write($errorMsg);
-        }
-        
-        $this->plugin->getInstanceOf(WordPressLoader::class)->load(function() use ($plugin, $pluginName, $errorMsg) {
-            $this->io->write('  - Deactivating plugin <info>' . $pluginName . '</info>');
-            $r = deactivate_plugins($plugin);
-            
-            if ($r !== null) {
-                $this->io->write($errorMsg);
-            }
-        });
+        $this->interact($composer, $io, __FUNCTION__, $pluginName);
     }
     
     /**
@@ -109,36 +89,40 @@ class PluginInteractor
      */
     public function uninstall(Composer $composer, IOInterface $io, $pluginName)
     {
-        $this->init($composer, $io);
-        
-        $plugin = $this->getPlugin($pluginName);
-        $errorMsg = '<warning>The plugin ' . $pluginName . ' could not be uninstalled.</warning>';
-        
-        if (! $plugin) {
-            return $io->write($errorMsg);
-        }
-        
-        $this->plugin->getInstanceOf(WordPressLoader::class)->load(function() use ($plugin, $pluginName, $errorMsg) {
-            $this->io->write('  - Uninstalling plugin <info>' . $pluginName . '</info>');
-            $r = uninstall_plugin($plugin);
-            
-            if ($r !== true) {
-                $this->io->write($errorMsg);
-            }
-        });
+        $this->interact($composer, $io, __FUNCTION__, $pluginName);
     }
     
     /**
-     * Initialise the PluginInteractor.
+     * Execute a plugin interaction.
      * 
      * @param  \Composer\Composer  $composer
      * @param  \Composer\IO\IOInterface  $io
+     * @param  string  $action
+     * @param  string  $pluginName
      * @return void
      */
-    protected function init(Composer $composer, IOInterface $io)
+    protected function interact(Composer $composer, IOInterface $io, $action, $pluginName)
     {
         $this->composer = $composer;
         $this->io = $io;
+        
+        $plugin = $this->getPlugin($pluginName);
+        
+        if (! $plugin) {
+            return $this->failed($action, $pluginName);
+        }
+        
+        if ($this->isPluginExcluded($pluginName, $action)) {
+            return $this->excluded($action, $pluginName);
+        }
+        
+        $this->plugin->getInstanceOf(WordPressLoader::class)->load(function() use ($plugin, $pluginName, $action) {
+            $this->executing($action, $pluginName);
+            
+            if (! $this->execAction($action, $plugin)) {
+                $this->failed($action, $pluginName);
+            }
+        });
     }
     
     /**
@@ -176,5 +160,134 @@ class PluginInteractor
         }
         
         return false;
+    }
+    
+    /**
+     * Check if plugin is excluded from action.
+     * 
+     * @param  string  $action
+     * @param  string  $plugin
+     * @return bool
+     */
+    protected function isPluginExcluded($action, $plugin)
+    {
+        return in_array($plugin, $this->exclude[$action]);
+    }
+    
+    /**
+     * Execute an action and return success.
+     * 
+     * @param  string  $action
+     * @param  string  $plugin
+     * @return bool
+     */
+    protected function execAction($action, $plugin)
+    {
+        switch ($action) {
+            case 'activate':
+            case 'uninstall':
+                $exec = $action . '_plugin';
+                break;
+            case 'deactivate':
+                $exec = $action . '_plugins';
+                break;
+            default:
+                return false;
+        }
+        
+        switch ($action) {
+            case 'activate':
+            case 'deactivate':
+                $success = null;
+                break;
+            case 'uninstall':
+                $success = true;
+                break;
+            default:
+                return false;
+        }
+        
+        return $exec($plugin) === $success;
+    }
+    
+    /**
+     * Get Present Continuous action.
+     * 
+     * @param  string  $action
+     * @return string
+     */
+    protected function getActionExecuting($action)
+    {
+        switch ($action) {
+            case 'activate':
+            case 'deactivate':
+                $action = rtrim($action, 'e') . 'ing';
+                break;
+            case 'uninstall':
+                $action .= 'ing';
+                break;
+        }
+        
+        return $action;
+    }
+    
+    /**
+     * Get Present Perfect action.
+     * 
+     * @param  string  $action
+     * @return string
+     */
+    protected function getActionPast($action)
+    {
+        switch ($action) {
+            case 'activate':
+            case 'deactivate':
+                $action .= 'd';
+                break;
+            case 'uninstall':
+                $action .= 'ed';
+                break;
+        }
+        
+        return $action;
+    }
+    
+    /**
+     * Write action executing.
+     * 
+     * @param  string  $action
+     * @param  string  $plugin
+     * @return void
+     */
+    protected function executing($action, $plugin)
+    {
+        $this->io->write('  - ' . ucfirst($this->getActionExecuting($action)) . ' plugin <info>' . $plugin . '</info>');
+        $this->io->write('');
+    }
+    
+    /**
+     * Write failed action warning.
+     * 
+     * @param  string  $action
+     * @param  string  $plugin
+     * @return void
+     */
+    protected function failed($action, $plugin)
+    {
+        $this->io->write('<warning>The plugin ' . $plugin . ' could not be ' . $this->getActionPast($action) . '.</warning>');
+    }
+    
+    /**
+     * Write failed action warning.
+     * 
+     * @param  string  $action
+     * @param  string  $plugin
+     * @return void
+     */
+    protected function excluded($action, $plugin)
+    {
+        $this->io->write('<warning>The plugin ' . $plugin . ' was not ' . $this->getActionPast($action) . ' because it is known to cause issues.</warning>');
+        $this->io->write('<info>You can still activate this plugin manually.</info>');
+        $this->io->write('');
     }
 }
