@@ -165,6 +165,7 @@ class Installer extends LibraryInstaller
         $gitignore = preg_split('/\r?\n/', $downloadGitignore . PHP_EOL . '# User rules' . PHP_EOL . $installGitignore);
         $group = 'user rules';
         $groups = [];
+        $rules = [];
         
         $groups['user rules'] = [];
         
@@ -175,8 +176,8 @@ class Installer extends LibraryInstaller
                 if (! isset($groups[$group])) {
                     $groups[$group] = [];
                 }
-            } elseif (! preg_match('/^\s*$/', $rule) && ! in_array($rule, $groups[$group])) {
-                $groups[$group][] = $rule;
+            } elseif (! preg_match('/^\s*$/', $rule) && ! in_array($rule, $rules)) {
+                $groups[$group][] = $rules[] = $rule;
             }
         }
         
