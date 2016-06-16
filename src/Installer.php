@@ -188,12 +188,14 @@ class Installer extends LibraryInstaller
                 continue;
             }
             
-            sort($rules);
+            $this->sortRules($rules);
             
             $gitignore[] = '# ' . ucfirst($group);
             $gitignore = array_merge($gitignore, $rules);
             $gitignore[] = '';
         }
+        
+        $this->sortRules($groups['user rules']);
         
         $gitignore[] = '# User rules';
         $gitignore = array_merge($gitignore, $groups['user rules']);
@@ -375,6 +377,14 @@ class Installer extends LibraryInstaller
         }
         
         return $compiled;
+    }
+    
+    private function sortRules(&$rules)
+    {
+        sort($rules);
+        usort($rules, function($a, $b) {
+            return strlen($a) - strlen($b);
+        });
     }
     
     /**
