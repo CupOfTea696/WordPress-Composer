@@ -14,4 +14,3 @@ finder:
     - ".phpspec"
     - "spec"
     - "tests"
-    - "src/wordpress.php"
