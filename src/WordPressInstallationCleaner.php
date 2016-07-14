@@ -1,4 +1,6 @@
-<?php namespace CupOfTea\WordPress\Composer;
+<?php
+
+namespace CupOfTea\WordPress\Composer;
 
 use Composer\Composer;
 use Composer\Util\Filesystem;
@@ -8,14 +10,14 @@ class WordPressInstallationCleaner
 {
     /**
      * The Plugin instance.
-     * 
+     *
      * @var \Composer\Plugin\PluginInterface
      */
     protected $plugin;
     
     /**
      * Create a new WordPressInstallationCleaner instance.
-     * 
+     *
      * @param  \Composer\Plugin\PluginInterface  $plugin
      * @return void
      */
@@ -26,7 +28,7 @@ class WordPressInstallationCleaner
     
     /**
      * Clean up the WordPress installation directory.
-     * 
+     *
      * @param  \Composer\Composer  $composer
      * @return void
      */

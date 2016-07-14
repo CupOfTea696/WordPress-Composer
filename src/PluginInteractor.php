@@ -1,7 +1,7 @@
-<?php namespace CupOfTea\WordPress\Composer;
+<?php
 
-use PDO;
-use PDOException;
+namespace CupOfTea\WordPress\Composer;
+
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
@@ -10,28 +10,28 @@ class PluginInteractor
 {
     /**
      * The Plugin instance.
-     * 
+     *
      * @var \Composer\Plugin\PluginInterface
      */
     protected $plugin;
     
     /**
      * The composer instance.
-     * 
+     *
      * @var \Composer\Composer
      */
     protected $composer;
     
     /**
      * The IOInterface instance.
-     * 
+     *
      * @var \Composer\IO\IOInterface
      */
     protected $io;
     
     /**
-     * Plugins excluded from interactions. 
-     * 
+     * Plugins excluded from interactions.
+     *
      * @var array
      */
     protected $exclude = [
@@ -44,7 +44,7 @@ class PluginInteractor
     
     /**
      * Create a new PluginInteractor instance.
-     * 
+     *
      * @param  \Composer\Plugin\PluginInterface  $plugin
      * @return void
      */
@@ -55,7 +55,7 @@ class PluginInteractor
     
     /**
      * Activate a plugin.
-     * 
+     *
      * @param  \Composer\Composer  $composer
      * @param  \Composer\IO\IOInterface  $io
      * @param  string  $plugin
@@ -68,7 +68,7 @@ class PluginInteractor
     
     /**
      * Deactivate a plugin.
-     * 
+     *
      * @param  \Composer\Composer  $composer
      * @param  \Composer\IO\IOInterface  $io
      * @param  string  $plugin
@@ -81,7 +81,7 @@ class PluginInteractor
     
     /**
      * Uninstall a plugin.
-     * 
+     *
      * @param  \Composer\Composer  $composer
      * @param  \Composer\IO\IOInterface  $io
      * @param  string  $plugin
@@ -94,7 +94,7 @@ class PluginInteractor
     
     /**
      * Execute a plugin interaction.
-     * 
+     *
      * @param  \Composer\Composer  $composer
      * @param  \Composer\IO\IOInterface  $io
      * @param  string  $action
@@ -116,7 +116,7 @@ class PluginInteractor
             return $this->excluded($action, $pluginName);
         }
         
-        $this->plugin->getInstanceOf(WordPressLoader::class)->load(function() use ($plugin, $pluginName, $action) {
+        $this->plugin->getInstanceOf(WordPressLoader::class)->load(function () use ($plugin, $pluginName, $action) {
             $this->executing($action, $pluginName);
             
             if (! $this->execAction($action, $plugin)) {
@@ -127,7 +127,7 @@ class PluginInteractor
     
     /**
      * Get the main plugin file for a plugin.
-     * 
+     *
      * @param  string  $plugin
      * @return string|false
      */
@@ -164,7 +164,7 @@ class PluginInteractor
     
     /**
      * Check if plugin is excluded from action.
-     * 
+     *
      * @param  string  $action
      * @param  string  $plugin
      * @return bool
@@ -176,7 +176,7 @@ class PluginInteractor
     
     /**
      * Execute an action and return success.
-     * 
+     *
      * @param  string  $action
      * @param  string  $plugin
      * @return bool
@@ -211,7 +211,7 @@ class PluginInteractor
     
     /**
      * Get Present Continuous action.
-     * 
+     *
      * @param  string  $action
      * @return string
      */
@@ -232,7 +232,7 @@ class PluginInteractor
     
     /**
      * Get Present Perfect action.
-     * 
+     *
      * @param  string  $action
      * @return string
      */
@@ -253,7 +253,7 @@ class PluginInteractor
     
     /**
      * Write action executing.
-     * 
+     *
      * @param  string  $action
      * @param  string  $plugin
      * @return void
@@ -266,7 +266,7 @@ class PluginInteractor
     
     /**
      * Write failed action warning.
-     * 
+     *
      * @param  string  $action
      * @param  string  $plugin
      * @return void
@@ -278,7 +278,7 @@ class PluginInteractor
     
     /**
      * Write failed action warning.
-     * 
+     *
      * @param  string  $action
      * @param  string  $plugin
      * @return void

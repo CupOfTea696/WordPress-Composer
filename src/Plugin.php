@@ -1,8 +1,9 @@
-<?php namespace CupOfTea\WordPress\Composer;
+<?php
+
+namespace CupOfTea\WordPress\Composer;
 
 use Composer\Config;
 use Composer\Composer;
-use Composer\Json\JsonFile;
 use Composer\IO\IOInterface;
 use CupOfTea\Package\Package;
 use Composer\Plugin\PluginInterface;
@@ -28,41 +29,41 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     
     /**
      * The composer instance.
-     * 
+     *
      * @var \Composer\Composer
      */
     protected $composer;
     
     /**
      * The IOInterface instance.
-     * 
+     *
      * @var \Composer\IO\IOInterface
      */
     protected $io;
     
     /**
      * The Dotenv instance.
-     * 
+     *
      * @var \Dotenv\Dotenv
      */
     protected $env;
     
     /**
      * Plugin class instances.
-     * 
+     *
      * @var array
      */
     protected $instances = [];
     
     /**
      * Public directory name.
-     * 
+     *
      * @var string
      */
     protected $publicDirectory;
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function activate(Composer $composer, IOInterface $io)
     {
@@ -87,7 +88,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
@@ -119,7 +120,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     
     /**
      * Dynamically forward events.
-     * 
+     *
      * @param  string $method
      * @param  array $args
      * @return void
@@ -135,7 +136,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     
     /**
      * Get an instance of a class.
-     * 
+     *
      * @param  string  $class
      * @return object
      */
@@ -150,7 +151,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     
     /**
      * Get the root directory.
-     * 
+     *
      * @return string
      */
     public function getRootDirectory()
@@ -162,7 +163,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     
     /**
      * Get the vendor directory.
-     * 
+     *
      * @return string
      */
     public function getVendorDirectory()

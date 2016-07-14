@@ -1,4 +1,6 @@
-<?php namespace CupOfTea\WordPress\Composer;
+<?php
+
+namespace CupOfTea\WordPress\Composer;
 
 use Composer\Composer;
 use Composer\Json\JsonFile;
@@ -9,35 +11,35 @@ class ComposerConfigurator
 {
     /**
      * The Plugin instance.
-     * 
+     *
      * @var \Composer\Plugin\PluginInterface
      */
     protected $plugin;
     
     /**
      * The composer instance.
-     * 
+     *
      * @var \Composer\Composer
      */
     protected $composer;
     
     /**
      * The IOInterface instance.
-     * 
+     *
      * @var \Composer\IO\IOInterface
      */
     protected $io;
     
     /**
      * The composer.json file.
-     * 
+     *
      * @var string
      */
     protected $composerJson;
     
     /**
      * Sort order for composer.json properties.
-     * 
+     *
      * @var array
      */
     protected $composerOrder = [
@@ -72,7 +74,7 @@ class ComposerConfigurator
     
     /**
      * Sort order for the composer.json autoload & autoload-dev properties.
-     * 
+     *
      * @var array
      */
     protected $autoloadOrder = [
@@ -96,7 +98,7 @@ class ComposerConfigurator
     
     /**
      * Configure the composer.json file.
-     * 
+     *
      * @param  \Composer\Composer  $composer
      * @param  \Composer\IO\IOInterface  $io
      * @return void
