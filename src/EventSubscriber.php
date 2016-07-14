@@ -1,4 +1,6 @@
-<?php namespace CupOfTea\WordPress\Composer;
+<?php
+
+namespace CupOfTea\WordPress\Composer;
 
 use Composer\Script\ScriptEvents;
 use Composer\EventDispatcher\Event;
@@ -12,21 +14,21 @@ class EventSubscriber implements EventSubscriberInterface
 {
     /**
      * The EventSubscriber instance.
-     * 
+     *
      * @var \CupOfTea\WordPress\Composer\EventSubscriber
      */
     protected static $instance;
     
     /**
      * The Plugin instance.
-     * 
+     *
      * @var \Composer\Plugin\PluginInterface
      */
     protected static $plugin;
     
     /**
      * Create a new EventSubscriber instance.
-     * 
+     *
      * @return void
      */
     protected function __construct()
@@ -35,7 +37,7 @@ class EventSubscriber implements EventSubscriberInterface
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
@@ -51,7 +53,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Get the EventSubscriber instance.
-     * 
+     *
      * @return EventSubscriber
      */
     public static function getInstance()
@@ -65,7 +67,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Set the \Composer\Plugin\PluginInterface instance.
-     * 
+     *
      * @param  \Composer\Plugin\PluginInterface $plugin
      * @return void
      */
@@ -76,7 +78,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Configure the composer sonfiguration file.
-     * 
+     *
      * @param  \Composer\EventDispatcher\Event $event
      * @return void
      */
@@ -87,7 +89,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Set the WordPress installation directory.
-     * 
+     *
      * @param  \Composer\EventDispatcher\Event $event
      * @return void
      */
@@ -118,7 +120,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Clean the WordPress installation.
-     * 
+     *
      * @param  \Composer\Installer\PackageEvent $event
      * @return void
      */
@@ -133,7 +135,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Activate a WordPress plugin.
-     * 
+     *
      * @param  \Composer\Installer\PackageEvent  $event
      * @return void
      */
@@ -152,7 +154,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Deactivate a WordPress plugin.
-     * 
+     *
      * @param  \Composer\Installer\PackageEvent  $event
      * @return void
      */
@@ -171,7 +173,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Uninstall a WordPress plugin.
-     * 
+     *
      * @param  \Composer\Installer\PackageEvent  $event
      * @return void
      */
@@ -190,7 +192,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Get the PackageInterface from a PackageEvent.
-     * 
+     *
      * @param  \Composer\Installer\PackageEvent  $event
      * @return \Composer\Package\PackageInterface
      */
@@ -207,7 +209,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Get package name from a PackageEvent.
-     * 
+     *
      * @param  \Composer\Installer\PackageEvent  $event
      * @return string
      */
@@ -218,7 +220,7 @@ class EventSubscriber implements EventSubscriberInterface
     
     /**
      * Check if the package is a WordPress Plugin.
-     * 
+     *
      * @param  \Composer\Package\PackageInterface  $package
      * @return bool
      */
