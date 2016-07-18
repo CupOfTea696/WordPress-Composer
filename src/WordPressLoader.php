@@ -1,30 +1,30 @@
-<?php namespace CupOfTea\WordPress\Composer;
+<?php
+
+namespace CupOfTea\WordPress\Composer;
 
 use PDO;
 use PDOException;
-use Composer\Composer;
-use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 
 class WordPressLoader
 {
     /**
      * The Plugin instance.
-     * 
+     *
      * @var \Composer\Plugin\PluginInterface
      */
     protected $plugin;
     
     /**
      * WordPress load state.
-     * 
+     *
      * @var bool
      */
     protected $wpLoaded = false;
     
     /**
      * Create a new WordPressInstallationCleaner instance.
-     * 
+     *
      * @param  \Composer\Plugin\PluginInterface  $plugin
      * @return void
      */
@@ -35,7 +35,7 @@ class WordPressLoader
     
     /**
      * Load WordPress.
-     * 
+     *
      * @param  callable  $callback
      * @return mixed
      */
@@ -54,7 +54,7 @@ class WordPressLoader
     
     /**
      * Configure the DB Hostname.
-     * 
+     *
      * @return void
      */
     protected function configureDB()
@@ -87,7 +87,7 @@ class WordPressLoader
     
     /**
      * Set the ABSPATH constant and include WordPress.
-     * 
+     *
      * @return void
      */
     protected function loadWordPress()

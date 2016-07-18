@@ -1,4 +1,6 @@
-<?php namespace CupOfTea\WordPress\Composer;
+<?php
+
+namespace CupOfTea\WordPress\Composer;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
@@ -22,20 +24,20 @@ class Installer extends LibraryInstaller
     
     /**
      * The Plugin instance.
-     * 
+     *
      * @var \Composer\Plugin\PluginInterface
      */
     protected $plugin;
     
     /**
      * Template contents.
-     * 
+     *
      * @var array
      */
     protected $templates = [];
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function __construct(IOInterface $io, Composer $composer, PluginInterface $plugin, $type = 'library', Filesystem $filesystem = null, BinaryInstaller $binaryInstaller = null)
     {
@@ -45,7 +47,7 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function supports($packageType)
     {
@@ -53,7 +55,7 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
@@ -65,7 +67,7 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
@@ -77,7 +79,7 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
     {
@@ -94,12 +96,12 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         if (! $repo->hasPackage($package)) {
-            throw new InvalidArgumentException('Package is not installed: '.$package);
+            throw new InvalidArgumentException('Package is not installed: ' . $package);
         }
         
         $this->removeCode($package);
@@ -107,7 +109,7 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getInstallPath(PackageInterface $package)
     {
@@ -226,7 +228,7 @@ class Installer extends LibraryInstaller
             'AUTH_SALT',
             'SECURE_AUTH_SALT',
             'LOGGED_IN_SALT',
-            'NONCE_SALT'
+            'NONCE_SALT',
         ];
         
         $envExample = ['APP_PUBLIC' => 'public'];
@@ -252,7 +254,7 @@ class Installer extends LibraryInstaller
     
     /**
      * Configure Composer.
-     * 
+     *
      * @return void
      */
     protected function configureComposer()
@@ -262,7 +264,7 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function installCode(PackageInterface $package)
     {
@@ -282,7 +284,7 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function updateCode(PackageInterface $current, PackageInterface $target)
     {
@@ -316,7 +318,7 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function removeCode(PackageInterface $package)
     {
@@ -329,8 +331,8 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * Install files
-     * 
+     * Install files.
+     *
      * @param  string  $installPath
      * @param  string  $downloadPath
      * @param  string  $publicPath
@@ -364,7 +366,7 @@ class Installer extends LibraryInstaller
     
     /**
      * Compile a template file.
-     * 
+     *
      * @param  string  $templatePath
      * @param  string  $destinationPath
      * @param  array|null  $data
@@ -398,21 +400,21 @@ class Installer extends LibraryInstaller
     
     /**
      * Sort gitignore rules.
-     * 
+     *
      * @param  array  &$rules
      * @return void
      */
     private function sortRules(&$rules)
     {
         sort($rules);
-        usort($rules, function($a, $b) {
+        usort($rules, function ($a, $b) {
             return strlen($a) - strlen($b);
         });
     }
     
     /**
-     * Generate a Salt Key
-     * 
+     * Generate a Salt Key.
+     *
      * @return string
      */
     private function generateSalt()
