@@ -58,9 +58,7 @@ class Installer extends LibraryInstaller
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         if ($repo->hasPackage($package)) {
-            $files = $this->getInstallFiles($package);
-            
-            return count($files) && is_readable($this->getInstallPath($package) . '/' . $files[0]);
+            return is_readable($this->getInstallPath($package) . '/' . $package->getExtra()['main']);
         }
         
         return false;
@@ -231,14 +229,6 @@ class Installer extends LibraryInstaller
             'NONCE_SALT'
         ];
         
-        $env = ['APP_PUBLIC' => $this->plugin->getPublicDirectory()];
-        
-        foreach ($saltKeys as $salt) {
-            $env[$salt] = $this->generateSalt();
-        }
-        
-        $this->compileTemplate($templatePath, $dotEnvPath, $env);
-        
         $envExample = ['APP_PUBLIC' => 'public'];
         
         foreach ($saltKeys as $salt) {
@@ -246,6 +236,18 @@ class Installer extends LibraryInstaller
         }
         
         $this->compileTemplate($templatePath, $dotEnvExamplePath, $envExample);
+        
+        if (file_exists($dotEnvPath)) {
+            return;
+        }
+        
+        $env = ['APP_PUBLIC' => $this->plugin->getPublicDirectory()];
+        
+        foreach ($saltKeys as $salt) {
+            $env[$salt] = $this->generateSalt();
+        }
+        
+        $this->compileTemplate($templatePath, $dotEnvPath, $env);
     }
     
     /**
@@ -305,18 +307,12 @@ class Installer extends LibraryInstaller
         $currentFiles = $this->getInstallFiles($current);
         $targetFiles = $this->getInstallFiles($target);
         $deleteFiles = array_diff($currentFiles, $targetFiles);
-        $newFiles = array_diff($targetFiles, $currentFiles);
         
         foreach ($deleteFiles as $file) {
             $this->filesystem->remove($targetInstallPath . '/' . $file);
         }
         
-        $installPath = $this->getInstallPath($target);
-        $downloadPath = $this->getTempPath($target);
-        $publicPath = $this->plugin->getPublicDirectory();
-        
-        $this->downloadManager->download($package, $downloadPath);
-        $this->installFiles($targetInstallPath, $downloadPath, $publicPath, $newFiles);
+        $this->installCode($target);
     }
     
     /**
@@ -343,24 +339,26 @@ class Installer extends LibraryInstaller
      */
     protected function installFiles($installPath, $downloadPath, $publicPath, $files = [])
     {
-        foreach ($files as $file) {
-            if (! file_exists($downloadPath . '/' . $file)) {
-                throw new FilesystemException('The file ' . $file . ' could not be found. Please report to cupoftea/wordpress.');
-            }
-            
-            $installFile = $installPath . '/' . $file;
-            
-            if ($publicPath != 'public') {
-                $installFile = $installPath . '/' . preg_replace('/^public/', $publicPath, $file);
-            }
-            
-            if (preg_match('/\\/$/', $file)) {
-                $this->filesystem->ensureDirectoryExists($installFile);
+        foreach ($files as $file => $overwrite) {
+            if ($overwrite || (! $overwrite && ! file_exists($installPath . '/' . $file))) {
+                if (! file_exists($downloadPath . '/' . $file)) {
+                    throw new FilesystemException('The file ' . $file . ' could not be found. Please report to cupoftea/wordpress.');
+                }
                 
-                continue;
+                $installFile = $installPath . '/' . $file;
+                
+                if ($publicPath != 'public') {
+                    $installFile = $installPath . '/' . preg_replace('/^public/', $publicPath, $file);
+                }
+                
+                if (preg_match('/\\/$/', $file)) {
+                    $this->filesystem->ensureDirectoryExists($installFile);
+                    
+                    continue;
+                }
+                
+                $this->filesystem->rename($downloadPath . '/' . $file, $installFile);
             }
-            
-            $this->filesystem->rename($downloadPath . '/' . $file, $installFile);
         }
     }
     
