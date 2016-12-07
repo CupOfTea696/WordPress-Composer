@@ -89,9 +89,8 @@ class PluginInteractor
      * @param  string  $plugin
      * @return void
      */
-    public function uninstall(Composer $composer, IOInterface $io, $pluginName, $e = null)
+    public function uninstall(Composer $composer, IOInterface $io, $pluginName)
     {
-        $this->e = $e;
         $this->interact($composer, $io, __FUNCTION__, $pluginName);
     }
     
