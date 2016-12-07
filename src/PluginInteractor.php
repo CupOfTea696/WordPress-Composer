@@ -297,7 +297,7 @@ class PluginInteractor
         preg_match('/\\{(.*)\\}/s', $code, $body);
         
         $vars = $cmd->getStaticVariables();
-        $cmd = trim(preg_replace_callback('/return(?:;|\s([^;(]*(?:\(.*\))?);)/s', function ($matches) {
+        $cmd = trim(preg_replace_callback('/return(?:;|\s((?:[^;(]*(?:\(.*\))?)+);)/s', function ($matches) {
             if (! empty($matches[1])) {
                 return "return print 'OUTPUT>>>' . serialize({$matches[1]});";
             }
@@ -314,32 +314,34 @@ class PluginInteractor
             '__wp' => dirname(__FILE__) . '/wordpress.php',
         ];
         
-        $p = new PhpProcess(<<<'EOF'
-        <?php
-            extract(unserialize('EOF . serialize($config) . <<<'EOF'));
+        $config = serialize($config);
+        $vars = serialize($vars);
+        
+        $p = new PhpProcess("<?php
+            extract(unserialize('$config'));
             
             try {
-                $db = new PDO('mysql:host=' . $host . ';dbname=' . $name, $user, $pass);
+                \$db = new PDO('mysql:host=' . \$__host . ';dbname=' . \$__name, \$__user, \$__pass);
             } catch (PDOException \$e) {
-                if ($host == 'localhost') {
-                    $host = '127.0.0.1';
+                if (\$__host == 'localhost') {
+                    \$__host = '127.0.0.1';
                 }
                 
-                $db = new PDO('mysql:host=' . $host . ';port=33060;dbname=' . $name, $user, $pass);
+                \$db = new PDO('mysql:host=' . \$__host . ';port=33060;dbname=' . \$__name, \$__user, \$__pass);
                 
-                $host = $host . ':33060';
-            } catch (PDOException $e) {
+                \$__host = \$__host . ':33060';
+            } catch (PDOException \$e) {
                 return;
             }
             
-            define('DB_HOST', $host);
-            define('ABSPATH', $abspath);
+            define('DB_HOST', \$__host);
+            define('ABSPATH', \$__abspath);
             
-            include_once $wp;
+            include_once \$__wp;
             
-            extract(unserialize('EOF . serialize($vars) . <<<'EOF''));
-EOF
-        . $cmd);
+            extract(unserialize('$vars'));
+            $cmd
+            ");
         
         $p->run();
         
