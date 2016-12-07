@@ -14,18 +14,25 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     use Package;
     
     /**
+     * Package Vendor.
+     *
+     * @const string
+     */
+    const VENDOR = 'CupOfTea';
+    
+    /**
      * Package Name.
      *
      * @const string
      */
-    const PACKAGE = 'CupOfTea/WordPress-Composer';
+    const PACKAGE = 'WordPress-Composer';
     
     /**
      * Package Version.
      *
      * @const string
      */
-    const VERSION = '0.0.0';
+    const VERSION = '0.0.x-dev';
     
     /**
      * The composer instance.
