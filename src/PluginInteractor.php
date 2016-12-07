@@ -3,8 +3,10 @@
 namespace CupOfTea\WordPress\Composer;
 
 use Composer\Composer;
+use ReflectionFunction;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use Symfony\Component\Process\PhpProcess;
 
 class PluginInteractor
 {
@@ -87,8 +89,9 @@ class PluginInteractor
      * @param  string  $plugin
      * @return void
      */
-    public function uninstall(Composer $composer, IOInterface $io, $pluginName)
+    public function uninstall(Composer $composer, IOInterface $io, $pluginName, $e = null)
     {
+        $this->e = $e;
         $this->interact($composer, $io, __FUNCTION__, $pluginName);
     }
     
@@ -184,29 +187,28 @@ class PluginInteractor
     protected function execAction($action, $plugin)
     {
         if ($action == 'activate') {
-            wp_cache_set('plugins', [], 'plugins');
-            
-            return activate_plugin($plugin) === null;
+            return $this->wp(function () use ($plugin) {
+                wp_cache_set('plugins', [], 'plugins');
+                
+                return activate_plugin($plugin) === null;
+            });
         }
         
         if ($action == 'deactivate') {
-            return deactivate_plugins($plugin) === null;
+            return $this->wp(function () use ($plugin) {
+                return deactivate_plugins($plugin) === null;
+            });
         }
         
         if ($action == 'uninstall') {
-            if (defined('WP_UNINSTALL_PLUGIN')) {
-                if (! function_exists('runkit_constant_remove')) {
-                    return false;
-                }
+            return $this->wp(function () use ($plugin) {
+                $result = uninstall_plugin($plugin);
                 
-                runkit_constant_remove('WP_UNINSTALL_PLUGIN');
-            }
-            
-            $r = uninstall_plugin($plugin);
-            var_dump($r);
-            
-            return $r === true;
+                return $result === true || $result === null;
+            });
         }
+        
+        return false; // or should we throw an Exception?
     }
     
     /**
@@ -288,5 +290,64 @@ class PluginInteractor
         $this->io->write('<warning>The plugin ' . $plugin . ' was not ' . $this->getActionPast($action) . ' because it is known to cause issues.</warning>');
         $this->io->write('<info>You can still activate this plugin manually.</info>');
         $this->io->write('');
+    }
+    
+    protected function wp($cmd)
+    {
+        $cmd = new ReflectionFunction($cmd);
+        $code = implode(array_slice(file($cmd->getFileName()), ($startLine = $cmd->getStartLine() - 1), $cmd->getEndLine() - $startLine));
+        
+        preg_match('/\\{(.*)\\}/s', $code, $body);
+        
+        $vars = $cmd->getStaticVariables();
+        $cmd = trim(preg_replace_callback('/return(?:;|\s([^;(]*(?:\(.*\))?);)/s', function ($matches) {
+            if (! empty($matches[1])) {
+                return "return print 'OUTPUT>>>' . serialize({$matches[1]});";
+            }
+            
+            return "return print 'OUTPUT>>>' . serialize(null);";
+        }, $body[1]));
+        
+        $config = [
+            '__host' => env('DB_HOST', 'localhost'),
+            '__name' => env('DB_NAME', 'homestead'),
+            '__user' => env('DB_USER', 'homestead'),
+            '__pass' => env('DB_PASS', 'secret'),
+            '__abspath' => $this->plugin->getPublicDirectory() . '/wp/',
+            '__wp' => dirname(__FILE__) . '/wordpress.php',
+        ];
+        
+        $p = new PhpProcess(<<<'EOF'
+        <?php
+            extract(unserialize('EOF . serialize($config) . <<<'EOF'));
+            
+            try {
+                $db = new PDO('mysql:host=' . $host . ';dbname=' . $name, $user, $pass);
+            } catch (PDOException \$e) {
+                if ($host == 'localhost') {
+                    $host = '127.0.0.1';
+                }
+                
+                $db = new PDO('mysql:host=' . $host . ';port=33060;dbname=' . $name, $user, $pass);
+                
+                $host = $host . ':33060';
+            } catch (PDOException $e) {
+                return;
+            }
+            
+            define('DB_HOST', $host);
+            define('ABSPATH', $abspath);
+            
+            include_once $wp;
+            
+            extract(unserialize('EOF . serialize($vars) . <<<'EOF''));
+EOF
+        . $cmd);
+        
+        $p->run();
+        
+        if (preg_match('/OUTPUT>>>(.*)$/s', $p->getOutput(), $matches)) {
+            return unserialize($matches[1]);
+        }
     }
 }
