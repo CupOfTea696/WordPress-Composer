@@ -45,9 +45,9 @@ class EventSubscriber implements EventSubscriberInterface
             ScriptEvents::PRE_INSTALL_CMD => 'configureComposerJson',
             ScriptEvents::PRE_UPDATE_CMD => 'configureComposerJson',
             PackageEvents::PRE_PACKAGE_INSTALL => 'setWordPressInstallDirectory',
-            PackageEvents::POST_PACKAGE_INSTALL => ['cleanWordPressInstallation'], //, 'activateWordPressPlugin'],
+            PackageEvents::POST_PACKAGE_INSTALL => ['cleanWordPressInstallation', 'activateWordPressPlugin'],
             PackageEvents::POST_PACKAGE_UPDATE => 'cleanWordPressInstallation',
-            // PackageEvents::PRE_PACKAGE_UNINSTALL => ['deactivateWordPressPlugin', 'uninstallWordPressPlugin'],
+            PackageEvents::PRE_PACKAGE_UNINSTALL => ['deactivateWordPressPlugin', 'uninstallWordPressPlugin'],
         ];
     }
     
