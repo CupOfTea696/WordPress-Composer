@@ -118,13 +118,11 @@ class PluginInteractor
             return $this->excluded($action, $pluginName);
         }
         
-        $this->plugin->getInstanceOf(WordPressLoader::class)->load(function () use ($plugin, $pluginName, $action) {
-            $this->executing($action, $pluginName);
+        $this->executing($action, $pluginName);
             
-            if (! $this->execAction($action, $plugin)) {
-                $this->failed($action, $pluginName);
-            }
-        });
+        if (! $this->execAction($action, $plugin)) {
+            $this->failed($action, $pluginName);
+        }
     }
     
     /**
