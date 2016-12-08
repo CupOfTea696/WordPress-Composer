@@ -65,7 +65,17 @@ class PluginInteractor
      */
     public function activate(Composer $composer, IOInterface $io, $pluginName)
     {
-        $this->interact($composer, $io, __FUNCTION__, $pluginName);
+        $plugin = $this->prepare(__FUNCTION__, $composer, $io, $pluginName);
+        
+        if ($plugin) {
+            $result = $this->wp(function () use ($plugin) {
+                wp_cache_set('plugins', [], 'plugins');
+                
+                return activate_plugin($plugin);
+            });
+            
+            $this->succeeded(__FUNCTION__, $pluginName, $result === null);
+        }
     }
     
     /**
@@ -78,7 +88,16 @@ class PluginInteractor
      */
     public function deactivate(Composer $composer, IOInterface $io, $pluginName)
     {
-        $this->interact($composer, $io, __FUNCTION__, $pluginName);
+        $plugin = $this->prepare(__FUNCTION__, $composer, $io, $pluginName);
+        
+        if ($plugin) {
+            $result = $this->wp(function () use ($plugin) {
+                return deactivate_plugins($plugin);
+            });
+            
+            $this->succeeded(__FUNCTION__, $pluginName, $result === null);
+        }
+        
     }
     
     /**
@@ -91,36 +110,57 @@ class PluginInteractor
      */
     public function uninstall(Composer $composer, IOInterface $io, $pluginName)
     {
-        $this->interact($composer, $io, __FUNCTION__, $pluginName);
+        $plugin = $this->prepare(__FUNCTION__, $composer, $io, $pluginName);
+        
+        if ($plugin) {
+            $result =  $this->wp(function () use ($plugin) {
+                return uninstall_plugin($plugin);
+            });
+            
+            $this->succeeded(__FUNCTION__, $pluginName, $result === true || $result === null);
+        }
     }
     
     /**
-     * Execute a plugin interaction.
-     *
+     * Prepare plugin interaction.
+     * 
+     * @param  string  $action
      * @param  \Composer\Composer  $composer
      * @param  \Composer\IO\IOInterface  $io
-     * @param  string  $action
      * @param  string  $pluginName
-     * @return void
+     * @return string|false
      */
-    protected function interact(Composer $composer, IOInterface $io, $action, $pluginName)
+    protected function prepare($action, Composer $composer, IOInterface $io, $pluginName)
     {
         $this->composer = $composer;
         $this->io = $io;
         
+        if ($this->isPluginExcluded($action, $pluginName)) {
+            return $this->excluded($action, $pluginName) && false;
+        }
+        
         $plugin = $this->getPlugin($pluginName);
         
         if (! $plugin) {
-            return $this->failed($action, $pluginName);
-        }
-        
-        if ($this->isPluginExcluded($action, $pluginName)) {
-            return $this->excluded($action, $pluginName);
+            return $this->failed($action, $pluginName) && false;
         }
         
         $this->executing($action, $pluginName);
-            
-        if (! $this->execAction($action, $plugin)) {
+        
+        return $plugin;
+    }
+    
+    /**
+     * Show an action failed message if $success is falsy.
+     * 
+     * @param  string  $action
+     * @param  string  $pluginName
+     * @param  bool  $success
+     * @return void
+     */
+    protected function succeeded($action, $pluginName, $success)
+    {
+        if (! $success) {
             $this->failed($action, $pluginName);
         }
     }
@@ -175,37 +215,43 @@ class PluginInteractor
     }
     
     /**
-     * Execute an action and return success.
+     * Write action executing.
      *
      * @param  string  $action
      * @param  string  $plugin
-     * @return bool
+     * @return void
      */
-    protected function execAction($action, $plugin)
+    protected function executing($action, $plugin)
     {
-        if ($action == 'activate') {
-            return $this->wp(function () use ($plugin) {
-                wp_cache_set('plugins', [], 'plugins');
-                
-                return activate_plugin($plugin) === null;
-            });
-        }
-        
-        if ($action == 'deactivate') {
-            return $this->wp(function () use ($plugin) {
-                return deactivate_plugins($plugin) === null;
-            });
-        }
-        
-        if ($action == 'uninstall') {
-            return $this->wp(function () use ($plugin) {
-                $result = uninstall_plugin($plugin);
-                
-                return $result === true || $result === null;
-            });
-        }
-        
-        return false; // or should we throw an Exception?
+        $this->io->write('  - ' . ucfirst($this->getActionExecuting($action)) . ' plugin <info>' . $plugin . '</info>');
+        $this->io->write('');
+    }
+    
+    /**
+     * Write failed action warning.
+     *
+     * @param  string  $action
+     * @param  string  $plugin
+     * @return void
+     */
+    protected function failed($action, $plugin)
+    {
+        $this->io->write('<warning>The plugin ' . $plugin . ' could not be ' . $this->getActionPast($action) . '.</warning>');
+        $this->io->write('');
+    }
+    
+    /**
+     * Write failed action warning.
+     *
+     * @param  string  $action
+     * @param  string  $plugin
+     * @return void
+     */
+    protected function excluded($action, $plugin)
+    {
+        $this->io->write('<warning>The plugin ' . $plugin . ' was not ' . $this->getActionPast($action) . ' because it is known to cause issues.</warning>');
+        $this->io->write('<info>You can still activate this plugin manually.</info>');
+        $this->io->write('');
     }
     
     /**
@@ -251,45 +297,12 @@ class PluginInteractor
     }
     
     /**
-     * Write action executing.
-     *
-     * @param  string  $action
-     * @param  string  $plugin
-     * @return void
+     * Run a closure in the WordPress environment.
+     * 
+     * @param  closure  $cmd
+     * @return mixed
      */
-    protected function executing($action, $plugin)
-    {
-        $this->io->write('  - ' . ucfirst($this->getActionExecuting($action)) . ' plugin <info>' . $plugin . '</info>');
-        $this->io->write('');
-    }
-    
-    /**
-     * Write failed action warning.
-     *
-     * @param  string  $action
-     * @param  string  $plugin
-     * @return void
-     */
-    protected function failed($action, $plugin)
-    {
-        $this->io->write('<warning>The plugin ' . $plugin . ' could not be ' . $this->getActionPast($action) . '.</warning>');
-    }
-    
-    /**
-     * Write failed action warning.
-     *
-     * @param  string  $action
-     * @param  string  $plugin
-     * @return void
-     */
-    protected function excluded($action, $plugin)
-    {
-        $this->io->write('<warning>The plugin ' . $plugin . ' was not ' . $this->getActionPast($action) . ' because it is known to cause issues.</warning>');
-        $this->io->write('<info>You can still activate this plugin manually.</info>');
-        $this->io->write('');
-    }
-    
-    protected function wp($cmd)
+    protected function wp(closure $cmd)
     {
         $cmd = new ReflectionFunction($cmd);
         $code = implode(array_slice(file($cmd->getFileName()), ($startLine = $cmd->getStartLine() - 1), $cmd->getEndLine() - $startLine));
@@ -337,7 +350,16 @@ class PluginInteractor
             define('DB_HOST', \$__host);
             define('ABSPATH', \$__abspath);
             
-            include_once \$__wp;
+            \$_SERVER = [
+                'HTTP_HOST' => 'http://mysite.com',
+                'SERVER_NAME' => 'http://mysite.com',
+                'REQUEST_URI' => '/',
+                'REQUEST_METHOD' => 'GET'
+            ];
+            
+            //require the WP bootstrap
+            require_once ABSPATH . '/wp-admin/includes/plugin.php';
+            require_once ABSPATH . '/wp-load.php';
             
             extract(unserialize('$vars'));
             $cmd
