@@ -21,6 +21,6 @@
     "extra": {
         "class": "CupOfTea\\WordPress\\Composer\\Plugin"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }
