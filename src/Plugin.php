@@ -32,7 +32,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @const string
      */
-    const VERSION = '0.0.x-dev';
+    const VERSION = '1.0.0';
     
     /**
      * The composer instance.
