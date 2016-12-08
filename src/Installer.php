@@ -4,8 +4,8 @@ namespace CupOfTea\WordPress\Composer;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
-use InvalidArgumentException;
 use Composer\Util\Filesystem;
+use InvalidArgumentException;
 use Composer\Plugin\PluginInterface;
 use Composer\Package\PackageInterface;
 use Composer\Installer\BinaryInstaller;

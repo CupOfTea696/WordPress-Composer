@@ -97,7 +97,6 @@ class PluginInteractor
             
             $this->succeeded(__FUNCTION__, $pluginName, $result === null);
         }
-        
     }
     
     /**
@@ -113,7 +112,7 @@ class PluginInteractor
         $plugin = $this->prepare(__FUNCTION__, $composer, $io, $pluginName);
         
         if ($plugin) {
-            $result =  $this->wp(function () use ($plugin) {
+            $result = $this->wp(function () use ($plugin) {
                 return uninstall_plugin($plugin);
             });
             
@@ -123,7 +122,7 @@ class PluginInteractor
     
     /**
      * Prepare plugin interaction.
-     * 
+     *
      * @param  string  $action
      * @param  \Composer\Composer  $composer
      * @param  \Composer\IO\IOInterface  $io
@@ -152,7 +151,7 @@ class PluginInteractor
     
     /**
      * Show an action failed message if $success is falsy.
-     * 
+     *
      * @param  string  $action
      * @param  string  $pluginName
      * @param  bool  $success
@@ -298,7 +297,7 @@ class PluginInteractor
     
     /**
      * Run a closure in the WordPress environment.
-     * 
+     *
      * @param  closure  $cmd
      * @return mixed
      */
