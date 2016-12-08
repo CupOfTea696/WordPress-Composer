@@ -2,6 +2,7 @@
 
 namespace CupOfTea\WordPress\Composer;
 
+use Closure;
 use Composer\Composer;
 use ReflectionFunction;
 use Composer\IO\IOInterface;
@@ -301,7 +302,7 @@ class PluginInteractor
      * @param  closure  $cmd
      * @return mixed
      */
-    protected function wp(closure $cmd)
+    protected function wp(Closure $cmd)
     {
         $cmd = new ReflectionFunction($cmd);
         $code = implode(array_slice(file($cmd->getFileName()), ($startLine = $cmd->getStartLine() - 1), $cmd->getEndLine() - $startLine));
