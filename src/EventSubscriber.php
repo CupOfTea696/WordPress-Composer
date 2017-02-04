@@ -84,7 +84,7 @@ class EventSubscriber implements EventSubscriberInterface
      */
     public function configureComposerJson(Event $event)
     {
-        static::$plugin->getInstanceOf(ComposerConfigurator::class)->configure($event->getComposer(), $event->getIO());
+        static::$plugin->getInstanceOf(ComposerConfigurator::class, $event->getComposer(), $event->getIO())->configure();
     }
     
     /**
