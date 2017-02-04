@@ -35,7 +35,14 @@ class ComposerConfigurator
      *
      * @var string
      */
-    protected $composerJson;
+    protected $jsonFile;
+    
+    /**
+     * The composer.json contents.
+     *
+     * @var array
+     */
+    protected $json;
     
     /**
      * Sort order for composer.json properties.
@@ -89,25 +96,25 @@ class ComposerConfigurator
      * Create a new ComposerConfigurator instance.
      *
      * @param  \Composer\Plugin\PluginInterface  $plugin
+     * @param  \Composer\Composer  $composer
+     * @param  \Composer\IO\IOInterface  $io
      * @return void
      */
-    public function __construct(PluginInterface $plugin)
+    public function __construct(PluginInterface $plugin, Composer $composer, IOInterface $io)
     {
         $this->plugin = $plugin;
+        $this->composer = $composer;
+        $this->io = $io;
     }
     
     /**
      * Configure the composer.json file.
      *
-     * @param  \Composer\Composer  $composer
-     * @param  \Composer\IO\IOInterface  $io
      * @return void
      */
-    public function configure(Composer $composer, IOInterface $io)
+    public function configure()
     {
-        $this->composer = $composer;
-        $this->io = $io;
-        $this->composerJson = null;
+        $this->jsonFile = null;
         
         $publicDirectorySet = $this->isPublicDirectorySet();
         $wordPressInstallDirectorySet = $this->isWordPressInstallDirectorySet();
@@ -118,26 +125,26 @@ class ComposerConfigurator
             return;
         }
         
-        $json = $this->readJson();
+        $this->readJson();
         
         if (! $publicDirectorySet) {
-            $this->setPublicDirectory($json);
+            $this->setPublicDirectory();
         }
         
         if (! $wordPressInstallDirectorySet) {
-            $this->setWordPressInstallDirectory($json);
+            $this->setWordPressInstallDirectory();
         }
         
         if (! $reposConfigured) {
-            $this->configureRepos($json);
+            $this->configureRepos();
         }
         
         if (! $sortingConfigured) {
-            $this->configureSorting($json);
+            $this->configureSorting();
         }
         
-        $this->sortProperties($json);
-        $this->saveJson($json);
+        $this->sortProperties();
+        $this->saveJson();
     }
     
     /**
@@ -155,13 +162,12 @@ class ComposerConfigurator
     
     /**
      * Set the public directory in the composer.json.
-     *
-     * @param  array  $json
+     * 
      * @return void
      */
-    protected function setPublicDirectory(&$json)
+    protected function setPublicDirectory()
     {
-        $json['extra']['public-dir'] = $this->plugin->getPublicDirectory();
+        $this->json['extra']['public-dir'] = $this->plugin->getPublicDirectory();
     }
     
     /**
@@ -174,18 +180,31 @@ class ComposerConfigurator
         $rootPkg = $this->composer->getPackage();
         $extra = $rootPkg->getExtra();
         
-        return $rootPkg && $extra && ! empty($extra['wordpress-install-dir']);
+        return ! empty($extra['wordpress-install-dir']);
+    }
+    
+    /**
+     * Get the WordPress installation directory in the composer.json.
+     * 
+     * @return string
+     */
+    public function getWordPressInstallDirectory()
+    {
+        if (! $this->json) {
+            $this->readJson();
+        }
+        
+        return $this->json['extra']['wordpress-install-dir'];
     }
     
     /**
      * Set the WordPress installation directory in the composer.json.
-     *
-     * @param  array  $json
+     * 
      * @return void
      */
-    protected function setWordPressInstallDirectory(&$json)
+    protected function setWordPressInstallDirectory()
     {
-        $json['extra']['wordpress-install-dir'] = $this->plugin->getPublicDirectory() . '/wp';
+        $this->json['extra']['wordpress-install-dir'] = $this->plugin->getPublicDirectory() . '/wp';
     }
     
     /**
@@ -204,22 +223,21 @@ class ComposerConfigurator
     /**
      * Configure additional repositories for using WordPress with composer,
      * and set the installation directories for WordPress packages.
-     *
-     * @param  array  $json
+     * 
      * @return void
      */
-    protected function configureRepos(&$json)
+    protected function configureRepos()
     {
         $public = $this->plugin->getPublicDirectory();
         $plugins_path = $public . '/plugins/{$name}/';
         $themes_path = $public . '/themes/{$name}/';
         
-        $json['repositories'][] = [
+        $this->json['repositories'][] = [
             'type' => 'composer',
             'url' => 'https://wpackagist.org',
         ];
         
-        $extra = $json['extra'];
+        $extra = $this->json['extra'];
         
         if (isset($extra['installer-paths'])) {
             foreach ($extra['installer-paths'] as $path => &$names) {
@@ -238,7 +256,7 @@ class ComposerConfigurator
         $extra['installer-paths'][$plugins_path][] = 'type:wordpress-plugin';
         $extra['installer-paths'][$themes_path][] = 'type:wordpress-theme';
         
-        $json['extra'] = $extra;
+        $this->json['extra'] = $extra;
     }
     
     /**
@@ -253,60 +271,65 @@ class ComposerConfigurator
     
     /**
      * Configure automatic sorting of linked packages.
-     *
-     * @param  array  $json
+     * 
      * @return void
      */
-    protected function configureSorting(&$json)
+    protected function configureSorting()
     {
-        $json['config']['sort-packages'] = true;
+        $this->json['config']['sort-packages'] = true;
     }
     
     /**
      * Sort the composer.json properties.
-     *
-     * @param  array  $json
+     * 
      * @return void
      */
-    protected function sortProperties(&$json)
+    protected function sortProperties()
     {
-        $json = $this->sortByArray($json, $this->composerOrder);
+        $this->json = $this->sortByArray($this->json, $this->composerOrder);
         
-        if (isset($json['autoload'])) {
-            $json['autoload'] = $this->sortByArray($json['autoload'], $this->autoloadOrder);
+        if (isset($this->json['autoload'])) {
+            $this->json['autoload'] = $this->sortByArray($this->json['autoload'], $this->autoloadOrder);
         }
         
-        if (isset($json['autoload-dev'])) {
-            $json['autoload-dev'] = $this->sortByArray($json['autoload-dev'], $this->autoloadOrder);
+        if (isset($this->json['autoload-dev'])) {
+            $this->json['autoload-dev'] = $this->sortByArray($this->json['autoload-dev'], $this->autoloadOrder);
         }
         
         foreach (['support', 'require', 'require-dev', 'conflict', 'replace', 'provide', 'suggest'] as $property) {
-            if (isset($json[$property])) {
-                ksort($json[$property]);
+            if (isset($this->json[$property])) {
+                ksort($this->json[$property]);
             }
         }
+    }
+    
+    protected function getJsonFile()
+    {
+        if (! $this->jsonFile) {
+            $this->jsonFile = new JsonFile('composer.json', null, $this->io);
+        }
+        
+        return $this->jsonFile;
     }
     
     /**
      * Read the composer.json file.
      *
-     * @return array
+     * @return void
      */
-    protected function readJson()
+    public function readJson()
     {
-        $this->composerJson = new JsonFile('composer.json', null, $this->io);
-        
-        return $this->composerJson->read();
+        $this->json = $this->getJsonFile()->read();
     }
     
     /**
      * Save the composer.json file.
-     *
-     * @param array $json
+     * 
+     * @return void
      */
-    protected function saveJson($json)
+    protected function saveJson()
     {
-        $this->composerJson->write($json);
+        $this->getJsonFile()->write($this->json);
     }
     
     /**

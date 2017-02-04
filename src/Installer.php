@@ -29,6 +29,8 @@ class Installer extends LibraryInstaller
      */
     protected $plugin;
     
+    protected $composerConfigurator;
+    
     /**
      * Template contents.
      *
@@ -252,6 +254,15 @@ class Installer extends LibraryInstaller
         $this->compileTemplate($templatePath, $dotEnvPath, $env);
     }
     
+    protected function getComposerConfigurator()
+    {
+        if (! $this->composerConfigurator) {
+            $this->composerConfigurator = new ComposerConfigurator($this->plugin, $this->composer, $this->io);
+        }
+        
+        return $this->composerConfigurator;
+    }
+    
     /**
      * Configure Composer.
      *
@@ -259,8 +270,25 @@ class Installer extends LibraryInstaller
      */
     protected function configureComposer()
     {
-        $composerConfigurator = new ComposerConfigurator($this->plugin);
-        $composerConfigurator->configure($this->composer, $this->io);
+        $this->getComposerConfigurator()->configure();
+    }
+    
+    protected function checkWordPressInstallation()
+    {
+        $defaultWpInstallDir = $this->plugin->getRootDirectory() . '/wordpress';
+        $wpInstallDir = $this->getComposerConfigurator()->getWordPressInstallDirectory();
+        
+        if (file_exists($defaultWpInstallDir) && is_dir($defaultWpInstallDir)) {
+            if (! is_dir($wpInstallDir)) {
+                if (file_exists($wpInstallDir)) {
+                    unlink($wpInstallDir);
+                }
+                
+                rename($defaultWpInstallDir, $wpInstallDir);
+            } else {
+                rmdir($defaultWpInstallDir);
+            }
+        }
     }
     
     /**
@@ -279,6 +307,8 @@ class Installer extends LibraryInstaller
         $this->installGitignore($package);
         $this->installDotEnv($package);
         $this->configureComposer();
+        
+        $this->checkWordPressInstallation();
         
         $this->filesystem->remove($downloadPath);
     }
