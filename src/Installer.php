@@ -254,7 +254,7 @@ class Installer extends LibraryInstaller
     
     /**
      * Get the ComposerConfigurator instance.
-     * 
+     *
      * @return \CupOfTea\WordPress\Composer\ComposerConfigurator
      */
     protected function getComposerConfigurator()
@@ -275,7 +275,7 @@ class Installer extends LibraryInstaller
     /**
      * Check if WordPress is installed in the correct durector,
      * and move it if not.
-     * 
+     *
      * @return  void
      */
     protected function checkWordPressInstallation()
