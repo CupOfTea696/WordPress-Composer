@@ -29,8 +29,6 @@ class Installer extends LibraryInstaller
      */
     protected $plugin;
     
-    protected $composerConfigurator;
-    
     /**
      * Template contents.
      *
@@ -254,13 +252,14 @@ class Installer extends LibraryInstaller
         $this->compileTemplate($templatePath, $dotEnvPath, $env);
     }
     
+    /**
+     * Get the ComposerConfigurator instance.
+     * 
+     * @return \CupOfTea\WordPress\Composer\ComposerConfigurator
+     */
     protected function getComposerConfigurator()
     {
-        if (! $this->composerConfigurator) {
-            $this->composerConfigurator = new ComposerConfigurator($this->plugin, $this->composer, $this->io);
-        }
-        
-        return $this->composerConfigurator;
+        return $this->plugin->getInstanceOf(ComposerConfigurator::class);
     }
     
     /**
@@ -270,9 +269,15 @@ class Installer extends LibraryInstaller
      */
     protected function configureComposer()
     {
-        $this->getComposerConfigurator()->configure();
+        $this->getComposerConfigurator()->configure($this->composer, $this->io);
     }
     
+    /**
+     * Check if WordPress is installed in the correct durector,
+     * and move it if not.
+     * 
+     * @return  void
+     */
     protected function checkWordPressInstallation()
     {
         $defaultWpInstallDir = $this->plugin->getRootDirectory() . '/wordpress';

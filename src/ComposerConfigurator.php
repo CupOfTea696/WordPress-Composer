@@ -100,11 +100,9 @@ class ComposerConfigurator
      * @param  \Composer\IO\IOInterface  $io
      * @return void
      */
-    public function __construct(PluginInterface $plugin, Composer $composer, IOInterface $io)
+    public function __construct(PluginInterface $plugin)
     {
         $this->plugin = $plugin;
-        $this->composer = $composer;
-        $this->io = $io;
     }
     
     /**
@@ -112,9 +110,11 @@ class ComposerConfigurator
      *
      * @return void
      */
-    public function configure()
+    public function configure(Composer $composer, IOInterface $io)
     {
+        $this->composer = $composer;
         $this->jsonFile = null;
+        $this->io = $io;
         
         $publicDirectorySet = $this->isPublicDirectorySet();
         $wordPressInstallDirectorySet = $this->isWordPressInstallDirectorySet();
@@ -303,6 +303,11 @@ class ComposerConfigurator
         }
     }
     
+    /**
+     * Get the JsonFile.
+     * 
+     * @return \Composer\Json\JsonFile
+     */
     protected function getJsonFile()
     {
         if (! $this->jsonFile) {
