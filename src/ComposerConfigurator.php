@@ -162,7 +162,7 @@ class ComposerConfigurator
     
     /**
      * Set the public directory in the composer.json.
-     * 
+     *
      * @return void
      */
     protected function setPublicDirectory()
@@ -185,7 +185,7 @@ class ComposerConfigurator
     
     /**
      * Get the WordPress installation directory in the composer.json.
-     * 
+     *
      * @return string
      */
     public function getWordPressInstallDirectory()
@@ -199,7 +199,7 @@ class ComposerConfigurator
     
     /**
      * Set the WordPress installation directory in the composer.json.
-     * 
+     *
      * @return void
      */
     protected function setWordPressInstallDirectory()
@@ -223,7 +223,7 @@ class ComposerConfigurator
     /**
      * Configure additional repositories for using WordPress with composer,
      * and set the installation directories for WordPress packages.
-     * 
+     *
      * @return void
      */
     protected function configureRepos()
@@ -271,7 +271,7 @@ class ComposerConfigurator
     
     /**
      * Configure automatic sorting of linked packages.
-     * 
+     *
      * @return void
      */
     protected function configureSorting()
@@ -281,7 +281,7 @@ class ComposerConfigurator
     
     /**
      * Sort the composer.json properties.
-     * 
+     *
      * @return void
      */
     protected function sortProperties()
@@ -305,7 +305,7 @@ class ComposerConfigurator
     
     /**
      * Get the JsonFile.
-     * 
+     *
      * @return \Composer\Json\JsonFile
      */
     protected function getJsonFile()
@@ -329,7 +329,7 @@ class ComposerConfigurator
     
     /**
      * Save the composer.json file.
-     * 
+     *
      * @return void
      */
     protected function saveJson()
