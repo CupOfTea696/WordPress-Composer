@@ -86,10 +86,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (file_exists($this->getVendorDirectory() . '/autoload.php')) {
             include_once $this->getVendorDirectory() . '/autoload.php';
             
-            $this->env = new \Dotenv\Dotenv($this->getRootDirectory());
-            $this->env->overload();
+            if (class_exists('\Dotenv\Dotenv')) {
+                $this->env = new \Dotenv\Dotenv($this->getRootDirectory());
+                $this->env->overload();
+            }
         }
-        
         
         EventSubscriber::setPlugin($this);
     }
