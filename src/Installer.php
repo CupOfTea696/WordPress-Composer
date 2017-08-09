@@ -463,6 +463,6 @@ class Installer extends LibraryInstaller
             $str .= $chars[mt_rand(0, $count - 1)];
         }
         
-        return $str;
+        return 'base64:' . base64_encode($str);
     }
 }
