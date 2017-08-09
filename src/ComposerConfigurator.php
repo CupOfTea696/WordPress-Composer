@@ -157,7 +157,7 @@ class ComposerConfigurator
         $rootPkg = $this->composer->getPackage();
         $extra = $rootPkg->getExtra();
         
-        return $rootPkg && $extra && ! empty($extra['public-dir']);
+        return $rootPkg && $extra && isset($extra['public-dir']) && ! empty($extra['public-dir']);
     }
     
     /**
@@ -180,7 +180,7 @@ class ComposerConfigurator
         $rootPkg = $this->composer->getPackage();
         $extra = $rootPkg->getExtra();
         
-        return ! empty($extra['wordpress-install-dir']);
+        return isset($extra['wordpress-install-dir']) && ! empty($extra['wordpress-install-dir']);
     }
     
     /**
