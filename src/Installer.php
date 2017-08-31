@@ -273,8 +273,8 @@ class Installer extends LibraryInstaller
     }
     
     /**
-     * Check if WordPress is installed in the correct durector,
-     * and move it if not.
+     * Check if WordPress is installed in the correct directory,
+     * and move it there if it is not.
      *
      * @return  void
      */

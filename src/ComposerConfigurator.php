@@ -125,8 +125,6 @@ class ComposerConfigurator
             return;
         }
         
-        $this->readJson();
-        
         if (! $publicDirectorySet) {
             $this->setPublicDirectory();
         }
@@ -154,10 +152,11 @@ class ComposerConfigurator
      */
     protected function isPublicDirectorySet()
     {
-        $rootPkg = $this->composer->getPackage();
-        $extra = $rootPkg->getExtra();
+        if (! $this->json) {
+            $this->readJson();
+        }
         
-        return $rootPkg && $extra && isset($extra['public-dir']) && ! empty($extra['public-dir']);
+        return ! empty($this->json['extra']['public-dir']);
     }
     
     /**
@@ -167,6 +166,10 @@ class ComposerConfigurator
      */
     protected function setPublicDirectory()
     {
+        if (! $this->json) {
+            $this->readJson();
+        }
+        
         $this->json['extra']['public-dir'] = $this->plugin->getPublicDirectory();
     }
     
@@ -177,10 +180,11 @@ class ComposerConfigurator
      */
     protected function isWordPressInstallDirectorySet()
     {
-        $rootPkg = $this->composer->getPackage();
-        $extra = $rootPkg->getExtra();
+        if (! $this->json) {
+            $this->readJson();
+        }
         
-        return isset($extra['wordpress-install-dir']) && ! empty($extra['wordpress-install-dir']);
+        return ! empty($this->json['extra']['wordpress-install-dir']);
     }
     
     /**
@@ -204,6 +208,10 @@ class ComposerConfigurator
      */
     protected function setWordPressInstallDirectory()
     {
+        if (! $this->json) {
+            $this->readJson();
+        }
+        
         $this->json['extra']['wordpress-install-dir'] = $this->plugin->getPublicDirectory() . '/wp';
     }
     
@@ -214,10 +222,11 @@ class ComposerConfigurator
      */
     protected function areReposConfigured()
     {
-        $rootPkg = $this->composer->getPackage();
-        $repositories = $rootPkg->getRepositories();
+        if (! $this->json) {
+            $this->readJson();
+        }
         
-        return $this->pregGrepRecursive('/^http(s|\?)?:\/\/wpackagist\.org\/?$/', $repositories);
+        return ! empty($this->json['repositories']) && $this->pregGrepRecursive('/^http(s|\?)?:\/\/wpackagist\.org\/?$/', $this->json['repositories']);
     }
     
     /**
@@ -228,6 +237,10 @@ class ComposerConfigurator
      */
     protected function configureRepos()
     {
+        if (! $this->json) {
+            $this->readJson();
+        }
+        
         $public = $this->plugin->getPublicDirectory();
         $plugins_path = $public . '/plugins/{$name}/';
         $themes_path = $public . '/themes/{$name}/';
@@ -266,7 +279,11 @@ class ComposerConfigurator
      */
     protected function isSortingConfigured()
     {
-        return $this->composer->getConfig()->get('sort-packages');
+        if (! $this->json) {
+            $this->readJson();
+        }
+        
+        return ! empty($this->json['config']) && ! empty($this->json['config']['sort-packages']);
     }
     
     /**
@@ -276,6 +293,10 @@ class ComposerConfigurator
      */
     protected function configureSorting()
     {
+        if (! $this->json) {
+            $this->readJson();
+        }
+        
         $this->json['config']['sort-packages'] = true;
     }
     
@@ -286,6 +307,10 @@ class ComposerConfigurator
      */
     protected function sortProperties()
     {
+        if (! $this->json) {
+            $this->readJson();
+        }
+        
         $this->json = $this->sortByArray($this->json, $this->composerOrder);
         
         if (isset($this->json['autoload'])) {
