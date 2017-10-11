@@ -313,7 +313,7 @@ class Installer extends LibraryInstaller
                 . "}" . PHP_EOL
                 . "</script>" . PHP_EOL
                 . "</body>" . PHP_EOL
-                . "</html>");
+                . "</html>", $wpInstallScript);
             
             file_put_contents($wpInstallScriptPath, $wpInstallScript);
         }
