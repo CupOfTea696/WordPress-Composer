@@ -297,6 +297,29 @@ class Installer extends LibraryInstaller
     }
     
     /**
+     * Select the preferred en_GB option in the WordPress installation language form.
+     * 
+     * @return void
+     */
+    protected function selectPreferredLanguageOnWordPressInstall()
+    {
+        $wpInstallScriptPath = $this->getComposerConfigurator()->getWordPressInstallDirectory() . '/wp-admin/install.php';
+        
+        if (file_exists($wpInstallScriptPath)) {
+            $wpInstallScript = file_get_contents($wpInstallScriptPath);
+            $wpInstallScript = preg_replace('/<\\/body>\n<\\/html>/', "<script>" . PHP_EOL
+                . "if (jQuery('#language').find('option[value=\"en_GB\"]').length) {" . PHP_EOL
+                . "    jQuery('#language').val('en_GB').change();" . PHP_EOL
+                . "}" . PHP_EOL
+                . "</script>" . PHP_EOL
+                . "</body>" . PHP_EOL
+                . "</html>");
+            
+            file_put_contents($wpInstallScriptPath, $wpInstallScript);
+        }
+    }
+    
+    /**
      * {@inheritdoc}
      */
     protected function installCode(PackageInterface $package)
@@ -314,6 +337,7 @@ class Installer extends LibraryInstaller
         $this->configureComposer();
         
         $this->checkWordPressInstallation();
+        $this->selectPreferredLanguageOnWordPressInstall();
         
         $this->filesystem->remove($downloadPath);
     }
